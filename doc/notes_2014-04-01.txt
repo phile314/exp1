@@ -1,0 +1,14 @@
+Comparison:
+
+  - Language Features (see e.g. AST)
+  - FFI's (both ways)
+  - Code Generation (compile time, run time, code size)
+  - Optimization (esp. dep.-types related ones)
+  - Backend code analysis
+
+Use examples:
+  - Some basic examples (HelloWorld, ...)
+  - Dependent types stuff(e.g. Vectors or Lambda Calculus)
+
+
+Next meeting: 2014-05-08 ~1500
