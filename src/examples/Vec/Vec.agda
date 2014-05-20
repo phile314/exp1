@@ -70,4 +70,15 @@ transpose {zero} {suc m} {a} x = Nil
 transpose {suc n} {zero} a₁ = pure Nil
 transpose {suc n} {suc m} {a} (Cons x₁ x₂) with vmap head (Cons x₁ x₂) 
 ... | vm = Cons vm (vmap (λ p → λ q → Cons p q) (tail x₁) <*> transpose (vmap tail x₂))
-  
+
+sum : {n : ℕ} -> Vec ℕ n -> ℕ
+sum Nil = zero
+sum (Cons x v) = x + (sum v)
+
+-- correct result : 120060
+compute : ℕ
+compute = sum (vmap sum g)
+  where m : Matrix ℕ 3 3
+        m = Cons (Cons 13 (Cons 54 (Cons 543 Nil))) (Cons (Cons 234 (Cons 0 (Cons 12 Nil))) (Cons (Cons 345 (Cons 35413 (Cons 23412 Nil))) Nil))
+        g : Matrix ℕ 3 3
+        g = madd (transpose (transpose m)) (transpose (madd m idMatrix))

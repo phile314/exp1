@@ -11,4 +11,4 @@ import IO.Primitive as P
 main : P.IO ⊤
 main = run f
   where f : IO ⊤
-        f = putStrLn (show 5)
+        f = putStrLn (show compute)
