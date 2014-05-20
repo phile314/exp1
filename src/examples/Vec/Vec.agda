@@ -1,14 +1,24 @@
 module Vec where
 
-open import Data.Nat
-
 
 ---------------------
 ------ Prelude ------
 ---------------------
 
+data ℕ : Set where
+  zero : ℕ
+  suc  : (n : ℕ) → ℕ
+
+_+_ : ℕ → ℕ → ℕ
+zero  + n = n
+suc m + n = suc (m + n)
+
+_*_ : ℕ → ℕ → ℕ
+zero  * n = zero
+suc m * n = n + (m * n)
+
 data Vec (a : Set) : ℕ -> Set where
-  Nil : Vec a 0
+  Nil : Vec a zero
   Cons : {n : ℕ} -> (x : a) -> (xs : Vec a n) -> Vec a (suc n)
 
 
@@ -59,7 +69,7 @@ madd a b = vmap (λ x → \y -> vmap _+_ x <*> y) a <*> b
 -- Define the identity matrix
 idMatrix : {n : ℕ} -> Matrix ℕ n n
 idMatrix {zero} = Nil
-idMatrix {suc n} = Cons (Cons 1 (pure n)) (vmap (λ x → Cons 0 x) idMatrix)
+idMatrix {suc n} = Cons (Cons (suc zero) (pure n)) (vmap (λ x → Cons zero x) idMatrix)
 
 -- Define matrix transposition
 tail : {n : ℕ} {a : Set} -> Vec a (suc n) -> Vec a n
@@ -75,10 +85,34 @@ sum : {n : ℕ} -> Vec ℕ n -> ℕ
 sum Nil = zero
 sum (Cons x v) = x + (sum v)
 
+t1 = suc zero
+t2 = suc t1
+t3 = suc t2
+t4 = suc t3
+t5 = suc t4
+t10 = t5 + t5
+t11 = suc t10
+t12 = suc t11
+t13 = suc t12
+t20 = t10 + t10
+t30 = t20 + t10
+t40 = t30 + t10
+t50 = t40 + t10
+t54 = t50 + t4
+t100 = t50 + t50
+t200 = t50 + t50
+t234 = t200 + (t30 + t4)
+t345 = t200 + (t100 + (t40 + t5))
+t400 = t200 + t200
+t543 = t400 + (t100 + (t40 + t3))
+t800 = t400 + t400
+t23412 = ((t100 * t10) * (t20 + t3)) + (t400 + t12)
+t35413 = ((t100 * t10) * (t30 + t5)) + (t400 + t13)
+
 -- correct result : 120060
 compute : ℕ
 compute = sum (vmap sum g)
-  where m : Matrix ℕ 3 3
-        m = Cons (Cons 13 (Cons 54 (Cons 543 Nil))) (Cons (Cons 234 (Cons 0 (Cons 12 Nil))) (Cons (Cons 345 (Cons 35413 (Cons 23412 Nil))) Nil))
-        g : Matrix ℕ 3 3
+  where m : Matrix ℕ t3 t3
+        m = Cons (Cons t13 (Cons t54 (Cons t543 Nil))) (Cons (Cons t234 (Cons zero (Cons t12 Nil))) (Cons (Cons t345 (Cons t35413 (Cons t23412 Nil))) Nil))
+        g : Matrix ℕ t3 t3
         g = madd (transpose (transpose m)) (transpose (madd m idMatrix))
