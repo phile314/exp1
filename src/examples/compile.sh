@@ -1,9 +1,10 @@
 #!/bin/bash
 
-AGDA_STD_LIB="$HOME/.lib/agda/lib-0.7/src/"
+AGDA_STD_LIB="$HOME/agda-stdlib/src/"
 
-SRC=$1
+CMP=$1
+SRC=$2
 
 
 
-agda --include-path="$AGDA_STD_LIB" --include-path="." --epic "$SRC"
+agda --include-path="$AGDA_STD_LIB" --include-path="." --$CMP "$SRC"
