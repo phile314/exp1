@@ -1,0 +1,60 @@
+UHC Core:
+
+Use strict let to drive evaluation
+Names can't contain Unicode
+Case scrutinee needs to be in weak head normal form
+Extendable Tuples -> Old code, do not touch
+Unused code is pruned
+
+
+==============
+Ideas
+==============
+
+UHC/Wishlist:
+Unicode support in names
+Module system/support for UHC Core
+
+
+FFI/Natish-optimization:
+  If done before UHC Core, datatype is lost.
+  Potentially a problem for FFI, especially if a Haskell FFI with
+  shared datatypes is the objective.
+  The optimization could also be done on UHC Core instead I think.
+
+  Does the epic-backend actually also optimize "+/*///*"-like
+  functions to primitive operations?
+
+FFI/Optimization:
+  Similiar to the Natish-optimization problem, forcing 
+  arguments and stripping irrelevant arguments can change
+  datatypes and function signatures. This can potentially
+  be a problem for FFI.
+  Optimizations working on the Epic AST might be portable
+  to UHC Core without too much problems ??
+
+FFI/Haskell:
+  It would be nice to share datatypes (and functions) between HS
+  and Agda. Sharing HS datatypes with agda shouldn't be too bad,
+  as they should be a subset of Agda datatypes. This probably needs
+  some Tool support to extract Agda postulate/primitive declarations
+  to fix type checking and Emacs mode in Agda. Class constraints
+  in datatypes probably should be omitted.
+  For HS functions, calling them from AGda should work more or less straight forward.
+  -> TODO Does anything important get lost in HS -> Core transformation?
+
+  Using Agda datatypes from HS will be difficult. Could creating
+  wrapper functions for constructing/destructing Agda values work?
+  In general we can not map Agda datatypes to HS datatypes.
+
+  Assuming that we have a way to create arbitrary Agda values from HS,
+  calling agda functions shouldn't be too bad. We may wan't to apply
+  wrapper/worker transformations if we already apply optimizations
+  before the Core translation.
+
+FFI/C:
+  Can we piggy back on the HS C-FFI? Agda does not have a Class System I think?
+
+Agda/Eval:
+  For Agda code, we know that all functions are total. Could this be useful for some optimizations?
+  At the moment, lost in Core translation. What about primitives and disabled totality checker?

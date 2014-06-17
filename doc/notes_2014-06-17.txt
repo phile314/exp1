@@ -1,0 +1,15 @@
+Next meeting: 24.6.14 14:00 (Atze will not be there)
+--------------
+
+Current State:
+UHC compiles HS via Core, but executable crashes
+Agda -> Core, primitives missing
+
+Org:
+15 ETCS Exp. Project now
+Due ~~ +- October
+Write down ideas, notes etc.
+
+Next Steps:
+Implement primitives
+Create script for self-contained Core generation using HS-generated core as Template
