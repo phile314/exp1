@@ -1,10 +1,9 @@
-UHC Core:
-
-Use strict let to drive evaluation
-Names can't contain Unicode
-Case scrutinee needs to be in weak head normal form
-Extendable Tuples -> Old code, do not touch
-Unused code is pruned
+UHC/Core:
+  Use strict let to drive evaluation
+  Names can't contain Unicode
+  Case scrutinee needs to be in weak head normal form
+  Extendable Tuples -> Old code, do not touch
+  Unused Core code is pruned
 
 
 ==============
@@ -12,8 +11,8 @@ Ideas
 ==============
 
 UHC/Wishlist:
-Unicode support in names
-Module system/support for UHC Core
+  Unicode support in names
+  Module system support for UHC Core
 
 
 FFI/Natish-optimization:
@@ -39,8 +38,8 @@ FFI/Haskell:
   as they should be a subset of Agda datatypes. This probably needs
   some Tool support to extract Agda postulate/primitive declarations
   to fix type checking and Emacs mode in Agda. Class constraints
-  in datatypes probably should be omitted.
-  For HS functions, calling them from AGda should work more or less straight forward.
+  in datatypes maybe cannot be supported.
+  For HS functions, calling them from Agda should work more or less straight forward.
   -> TODO Does anything important get lost in HS -> Core transformation?
 
   Using Agda datatypes from HS will be difficult. Could creating
@@ -48,13 +47,18 @@ FFI/Haskell:
   In general we can not map Agda datatypes to HS datatypes.
 
   Assuming that we have a way to create arbitrary Agda values from HS,
-  calling agda functions shouldn't be too bad. We may wan't to apply
+  calling Agda functions from HS shouldn't be too bad. We may want to apply
   wrapper/worker transformations if we already apply optimizations
   before the Core translation.
 
 FFI/C:
-  Can we piggy back on the HS C-FFI? Agda does not have a Class System I think?
+  Can we piggyback on the HS C-FFI? Agda does not have a Class System I think?
 
 Agda/Eval:
   For Agda code, we know that all functions are total. Could this be useful for some optimizations?
   At the moment, lost in Core translation. What about primitives and disabled totality checker?
+
+Agda/Contracts:
+  Contracts in Agda for arbitrary functions. Could be especially useful for FFI,
+  but in other circumstances as well as safer alternative to postulate.
+  * FFI-Contracts idea is from Wouter.
