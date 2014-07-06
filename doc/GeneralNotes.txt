@@ -58,6 +58,9 @@ Agda/Eval:
   For Agda code, we know that all functions are total. Could this be useful for some optimizations?
   At the moment, lost in Core translation. What about primitives and disabled totality checker?
 
+  Having a 'seq' function in Agda could be useful. It should be possible to map this to either
+  let! or HS-seq relatively easy.
+
 Agda/Contracts:
   Contracts in Agda for arbitrary functions. Could be especially useful for FFI,
   but in other circumstances as well as safer alternative to postulate.
