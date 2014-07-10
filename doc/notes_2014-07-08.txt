@@ -1,0 +1,16 @@
+Current status:
+Agda code compiles via Core, executable segfaults
+
+
+Next steps:
+1. Make simple minimal example work
+2. Shell script to create big core file
+3. Linking Agda Core with some sort of Prelude
+   /
+   Support for multiple Agda files
+4. Robustness / Stress testing (eg. Agda std lib)
+
+
+Other things:
+   Enable optimizations again
+   Generate Agda Interface files from HS
