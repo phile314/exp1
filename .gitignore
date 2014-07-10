@@ -1,2 +1,6 @@
+*.grin
+*.hi
+*.bcr
+*.c
 *.agdai
 *.agda~

@@ -8,8 +8,9 @@ module RSimpleUhc where
 data Nat : Set where
   zero : Nat
   suc  : (n : Nat) → Nat
-
+{-# COMPILED_CORE_DATA Nat RSimpleUhc.Nat (Zero,0) (Suc,1) #-}
 {-# BUILTIN NATURAL Nat #-}
+
 _plus_ : Nat → Nat → Nat
 zero  plus n = n
 suc m plus n = suc (m plus n)
@@ -83,9 +84,9 @@ postulate
     _>>=_   : {A B : Set} -> IO A -> (A -> IO B) -> IO B
     putStrLn : String -> IO Unit
 
-{-# COMPILED_EPIC return (u1 : Unit, a : Any) -> Any = ioreturn(a) #-}
-{-# COMPILED_EPIC _>>=_ (u1 : Unit, u2 : Unit, x : Any, f : Any) -> Any = iobind(x,f) #-}
-{-# COMPILED_EPIC putStrLn (a : String , u : Unit) -> Unit = putStrLn(a) #-}
+{-# COMPILED_CORE return (\x -> UHC.Base.return x) #-}
+{-# COMPILED_CORE _>>=_ (\x y -> $UHC.Base.$>$>$= x y) #-}
+{-# COMPILED_CORE putStrLn (\x -> UHC.Base.putStrLn x) #-}
 
 {- data List {a} (A : Set a) : Set a where
   []  : List A
