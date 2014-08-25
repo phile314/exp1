@@ -1,0 +1,13 @@
+UHC:
+./configure --enable-core-asinpoutp --prefix /home/philipp/Projects/uhc/install/
+make 99/ehc
+make 99/ehclib
+cd build/99/lib-ehc/
+
+# dependency hell.... (necessary to avoid collision with agdas own constraints)
+cabal-dev -s /home/philipp/Projects/agda_sndbox/ install --constraint="binary>=0.6" --constraint="mtl>=2.1.1 && <2.2" --constraint="uhc-util==0.1.3.2"
+
+
+
+Agda:
+cabal-dev -s SNDBOX install -fuhc
