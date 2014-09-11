@@ -7,8 +7,21 @@ UHC/Core:
 
 
 ==============
+Remarks
+==============
+Natish/FFI:
+  The agda Nat-builtin will be translated to Integer.
+  As the Agda-Nat datatype is isomorphic to Integer,
+  this does not violate the type system. It should also
+  be more convenient when interfacing with haskell,
+  as normal haskell literals can be used (I think
+  this could also be made work using the class system and the
+  Num etc. classes)
+
+==============
 Ideas
 ==============
+
 
 UHC/Wishlist:
   Unicode support in names
