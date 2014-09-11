@@ -20,12 +20,12 @@ postulate
     _>>=_   : {A B : Set} -> IO A -> (A -> IO B) -> IO B
     putStrLn : String -> IO Unit
 
-{-# COMPILED_CORE return (\a x -> HelloWorld_Uhc_Pre.return x) #-}
-{-# COMPILED_CORE _>>=_ (\a b x y -> $HelloWorld_Uhc_Pre.$>$>$= x y) #-}
-{-# COMPILED_CORE putStrLn System.IO.putStrLn #-}
+{-# COMPILED_CORE return (\a x -> UHC.Agda.Builtins.primReturn x) #-}
+{-# COMPILED_CORE _>>=_ (\a b x y -> UHC.Agda.Builtins.primBind x y) #-}
+{-# COMPILED_CORE putStrLn (UHC.Agda.Builtins.primPutStrLn) #-}
 
 _>>_ : ∀ {A B} →  IO A → IO B → IO B
 m1 >> m2 = m1 >>= λ _ → m2
 
 main : IO Unit
-main = putStrLn "tesdfdsfg" >> return tt
+main = putStrLn "Hello World" >> return tt
