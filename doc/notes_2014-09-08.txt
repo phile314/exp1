@@ -1,0 +1,28 @@
+Simple example works with manual linking (HelloWorld)
+Prelude-linking - work in progress
+  Core parser/pretty printer issue
+
+Plan:
+1W  Fix prelude linking, HelloWorld working with linking
+2-3W  Make bigger self-contained example work
+
+
+Module support for Core?
+Compile std lib?
+
+
+Problem areas:
+  Bidirectional import/export?
+  how to represent dependently typed functions in Haskell? just ignore them or somehow represent them there as well?
+  Class System?
+  Seperate Compiliation -> Update HI files, requires rework some parts of UHC
+                           Exporting identifiers, types, names etc...
+                           FFI how to import/export
+                           Optimizations might interfere with interfacing
+
+Atze:
+  Aims for big core file/linking to HS files
+  
+
+Deliverables:
+  Documentation of future work packages
