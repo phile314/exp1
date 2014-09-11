@@ -1,14 +1,18 @@
-module RSimpleUhc where
+module RSimple_Uhc where
 
 
 ---------------------
 ------ Prelude ------
 ---------------------
 
+data Unit : Set where
+  tt : Unit
+{-# COMPILED_CORE_DATA Unit RSimple_Uhc_Pre.Unit (TT,0) #-}
+
 data Nat : Set where
   zero : Nat
   suc  : (n : Nat) → Nat
-{-# COMPILED_CORE_DATA Nat RSimpleUhc.Nat (Zero,0) (Suc,1) #-}
+{-# COMPILED_CORE_DATA Nat RSimple_Uhc_Pre.Nat (Zero,0) (Suc,1) #-}
 {-# BUILTIN NATURAL Nat #-}
 
 _plus_ : Nat → Nat → Nat
@@ -62,21 +66,12 @@ compute = vsum (vmap (_plus_ 34) (pure {12} 23))
 
 postulate
   String : Set
-
 {-# BUILTIN STRING String #-}
-{-# COMPILED_TYPE String String #-}
-
-postulate
-  Char : Set
 
 
---private
 postulate
   primNatToStr    : Nat → String
-
-
-data Unit : Set where
-  tt : Unit
+{-# COMPILED_CORE primNatToStr (\x -> RSimple_Uhc_Pre.primNatToStr x) #-}
 
 postulate
     IO      : Set -> Set
@@ -84,21 +79,24 @@ postulate
     _>>=_   : {A B : Set} -> IO A -> (A -> IO B) -> IO B
     putStrLn : String -> IO Unit
 
-{-# COMPILED_CORE return (\x -> UHC.Base.return x) #-}
-{-# COMPILED_CORE _>>=_ (\x y -> $UHC.Base.$>$>$= x y) #-}
-{-# COMPILED_CORE putStrLn (\x -> UHC.Base.putStrLn x) #-}
+{-# COMPILED_CORE return (\a x -> RSimple_Uhc_Pre.return x) #-}
+{-# COMPILED_CORE _>>=_ (\a b x y -> $RSimple_Uhc_Pre.$>$>$= x y) #-}
+{-# COMPILED_CORE putStrLn System.IO.putStrLn #-}
 
-{- data List {a} (A : Set a) : Set a where
-  []  : List A
-  _∷_ : (x : A) (xs : List A) → List A -}
+-- fix the unit problem
+postulate
+  HsUnit : Set
+  fixMain : IO Unit -> IO HsUnit
+{-# COMPILED_CORE fixMain RSimple_Uhc_Pre.fixMain #-}
 
-
-  
+ 
 _>>_ : ∀ {A B} →  IO A → IO B → IO B
 m1 >> m2 = m1 >>= λ _ → m2
 
-main : IO Unit
-main = putStrLn (primNatToStr compute) >> return tt
+main : IO HsUnit
+main = fixMain (putStrLn (primNatToStr 234) >> return tt)
+-- main = fixMain (primNatToStr compute) >> return tt)
+
 
 
 
