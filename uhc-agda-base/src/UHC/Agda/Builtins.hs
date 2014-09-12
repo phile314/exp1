@@ -34,4 +34,14 @@ primBind = (>>=)
 
 -- TODO this is a work around, as we don't have proper linking for core modules yet
 main :: IO ()
-main = Zero `seq` Suc `seq` primIntegerToNat `seq` primPutStrLn `seq` primReturn `seq` primBind `seq` return ()
+main = Zero `seq` Suc `seq` primIntegerToNat `seq` primPutStrLn `seq` primReturn `seq` primBind `seq` primDebugNatToInteger
+       `seq` primDebugIntegerToString `seq` return ()
+
+-- TODO should this actually be a prim? if so, rename
+primDebugNatToInteger :: Nat -> Integer
+primDebugNatToInteger (Zero) = 0
+primDebugNatToInteger (Suc n) = 1 + primDebugNatToInteger n
+
+-- TODO should this actually be a prim? if so, rename
+primDebugIntegerToString :: Integer -> String
+primDebugIntegerToString i = show i

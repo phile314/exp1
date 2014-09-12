@@ -2,5 +2,8 @@
 *.hi
 *.bcr
 *.c
+*.cr
+*.tcr
+*.bcr
 *.agdai
 *.agda~
