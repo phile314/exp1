@@ -1,0 +1,27 @@
+============
+UHC Wishlist
+============
+
+- UHC Core "Case" seems to depend on the order of alternatives, instead of using the CTags.
+  Changing the order of alternatives without changing their body seems to alter the semantics.
+  In UHC generated Core, alternatives are ordered by tag/alphabetical by constructor name.
+  (Workaround: sort branches by tag/constructor before emitting core)
+
+======
+PENDING
+======
+
+-Use EHC Core import support for linking Prelude primitives with Agda Core
+-Test and fix support for Agda Datatypes (ignoring any HS-FFI concerns)
+-Support for compiling multiple Agda modules
+-Finish support for binary core
+
+====
+DONE
+====
+
+-Fix wrong tags for data constructors in generated Core
+-Add builtin Unit to Agda, map to Haskell () / Core Tag Rec
+-Add builtin Nat to Agda, map to Nat-datatype defined in UHC.Agda.Builtins
+-Start writing proper generic prelude (UHC.Agda.Builtins, [1])
+-Call UHC from Agda
