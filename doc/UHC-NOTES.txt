@@ -1,0 +1,30 @@
+[R=Remark, W=Wish]
+
+===================
+UHC General Notes
+===================
+
+W   "make install" broken when configured with "--enable-core-asinpoutp".
+W   UHC cannot be installed via cabal/hackage.
+      * uhc does not participate in the cabal dependency solving when installing
+        agda, so it needs some manual guidance when installing the UHC library to
+        avoid incompatible dependencies.
+      * how to pass cabal arguments to UHC make install?
+      * Cannot be a hard, unconditional dependency of Agda
+
+================
+UHC Core Notes
+================
+
+R   UHC Core "Case" seems to depend on the order of alternatives, instead of using the CTags.
+    Changing the order of alternatives without changing their body seems to alter the semantics.
+    In UHC generated Core, alternatives are ordered by tag/alphabetical by constructor name.
+    (Workaround: sort branches by tag/constructor before emitting core)
+R   Tags in Core expressions are fixed after parsing, so only tags in the datatype
+    metadata seem to matter (NOT yet verified)
+R   When building a package (--pkg-build), ehc will not create the proper package files
+    when the library contains a main function
+R   Function names have to start with a lower case letter.
+R   cabal install --uhc is broken, possibly due to different base versions
+    (UHC has 3.0, cabal 1.16 expects 4)
+W   HS generated datatypes should prefix constructors with the datatype name

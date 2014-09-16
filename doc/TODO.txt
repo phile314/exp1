@@ -2,12 +2,7 @@
 UHC Wishlist
 ============
 
-- UHC Core "Case" seems to depend on the order of alternatives, instead of using the CTags.
-  Changing the order of alternatives without changing their body seems to alter the semantics.
-  In UHC generated Core, alternatives are ordered by tag/alphabetical by constructor name.
-  (Workaround: sort branches by tag/constructor before emitting core)
-- When building a package (--pkg-build), ehc will not create the proper package files
-  when the library contains a main function
+See file UHC-NOTES.txt
 
 ======
 PENDING
