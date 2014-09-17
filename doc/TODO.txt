@@ -8,7 +8,7 @@ See file UHC-NOTES.txt
 PENDING
 ======
 
--Use EHC Core import support for linking Prelude primitives with Agda Core
+-Don't emit datatype info for builtin types
 -Test and fix support for Agda Datatypes (ignoring any HS-FFI concerns)
 -Support for compiling multiple Agda modules
 -Finish support for binary core
@@ -16,6 +16,9 @@ PENDING
 ====
 DONE
 ====
+
+-Add support for compiling "primitive" definitions
+-Use EHC Core import support for linking Prelude primitives with Agda Core
 
 -Fix wrong tags for data constructors in generated Core
 -Add builtin Unit to Agda, map to Haskell () / Core Tag Rec
