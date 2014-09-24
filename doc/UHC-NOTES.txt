@@ -11,6 +11,13 @@ W   UHC cannot be installed via cabal/hackage.
         avoid incompatible dependencies.
       * how to pass cabal arguments to UHC make install?
       * Cannot be a hard, unconditional dependency of Agda
+    tell Atze what needs to be done in UHC
+      UHC platf-independent stuff as cabal library
+      UHC configure & make broken
+      UHC Core interpreter
+      UHC super compilation
+      UHC what needs to be changed?
+      cabal --uhc
 
 ================
 UHC Core Notes

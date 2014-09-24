@@ -1,0 +1,229 @@
+\documentclass[12pt, a4paper, twoside]{report}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{pdflscape}
+% font size could be 10pt (default), 11pt or 12 pt
+% paper size coulde be letterpaper (default), legalpaper, executivepaper,
+% a4paper, a5paper or b5paper
+% side coulde be oneside (default) or twoside 
+% columns coulde be onecolumn (default) or twocolumn
+% graphics coulde be final (default) or draft 
+%
+% titlepage coulde be notitlepage (default) or titlepage which 
+% makes an extra page for title 
+% 
+% paper alignment coulde be portrait (default) or landscape 
+%
+% equations coulde be 
+%   default number of the equation on the rigth and equation centered 
+%   leqno number on the left and equation centered 
+%   fleqn number on the rigth and  equation on the left side
+%   
+\lstset{basicstyle=\footnotesize, frame=single}
+
+\title{Proposal for an Agda UHC Backend}
+\author{Philipp Hausmann \\
+    4003373 \\
+    }
+
+\date{\today} 
+\begin{document}
+
+
+\maketitle
+
+\tableofcontents
+
+\chapter{General Idea}
+The dependently typed language Agda is lacking a decent compiler at the time of writing. While there
+exist three backends for Agda, of which one is maintained, all three have their shortcomings.
+The aim of this proposal is to create a new backend for Agda, using the UHC Core language
+as intermediate language to produce efficient executables. Apart from just being able to compile
+Agda code, it shall also be researched how a FFI interface between Agda and Haskell can be constructed,
+what restrictions apply to such a FFI binding and how it may interfere with optimizations.
+
+\chapter{Existing Backends}
+The current version of Agda has 3 backends. The MAlonzo backend targets Haskell as intermediate
+language, which is then compiled using GHC. The JS backend, as it's name says, targets javascript
+and is intended for compiling web applications. Lastly, the Epic backend targets the Epic language
+and uses the Epic compiler to produce an executable.
+We shall now look at these three backends a bit more in depth.
+\section{MAlonzo}
+MAlonzo is the only officially maintained backend of Agda and is able to compile the whole standard
+library. This backend contains no optimizations, apart from special handling of some Agda builtin
+datatypes like Nat. Instead, the MAlonzo compiler relies on GHC in that regard, which depending
+on the Agda program works to differing degress. Especially in situations where the type information
+present in Agda would be required to perform optimizations, the limitations of the current implementation
+become apparent. (Nat example)
+
+While this problems can be overcome, it also needs to be mentioned that the target language Haskell
+is not a perfect fit for compiling Agda. As Haskell doesn't support dependent types, the produced
+code contains a lot of "coerce" statements to cheat the haskell type system. Notwithstanding any
+bugs in the Agda backend, this should be safe but shows that there is a mismatch between the
+two languages.
+
+\chapter{Prototype Compiler}
+A prototype backend for Agda has been created, and it has been shown that it is feasible to compile
+Agda using UHC Core. This prototype lacks any optimizations and contains only a rudimentary FFI
+interface, which is unidirectional (Agda to Haskell). It is also restricted to compiling just one
+Agda module, and support for coinduction is missing too.
+
+\chapter{Proposal}
+\section{Agda Module support}
+\subsection{Parameterised Modules}
+Parametrized Agda modules can be mapped to normal plain modules, where every function get's the
+modules parameter as additional arguments. (see \url{http://wiki.portal.chalmers.se/agda/pmwiki.php?n=ReferenceManual.Modules#param})
+
+\section{Haskell FFI}
+\subsection{Type Erasure}
+
+TODO it seems that the indexes of data types are already get erased?
+For functions, this is not the case on the other hand.
+\begin{landscape}
+\begin{figure}
+\begin{subfigure}[b]{0.5\linewidth}
+\lstinputlisting{code/TypeErasureAgda.agda}
+\begin{lstlisting}
+data TypeErasureAgda.agda_List
+  =   TypeErasureAgda.List.agda_nil = {0,0}
+    , TypeErasureAgda.List.agda_cons = {1,2}
+    ;
+let rec
+  { TypeErasureAgda.agda_List
+      = \h0  ->
+          #Tag {Rec}
+  ; TypeErasureAgda.List.agda_nil
+      = #Tag {TypeErasureAgda.agda_List, nil, 0}
+  ; TypeErasureAgda.List.agda_cons
+      = \x  xs  ->
+          (#Tag {TypeErasureAgda.agda_List, cons, 1})
+            (x)
+            (xs)
+  } in
+...
+\end{lstlisting}
+\end{subfigure}
+\begin{subfigure}[b]{0.5\linewidth}
+\lstinputlisting[firstline=3]{code/TypeErasureHs.hs}
+\begin{lstlisting}
+data TypeErasureHs.List'
+  =   TypeErasureHs.Cons = {0,2}
+    , TypeErasureHs.Nil = {1,0}
+    ;
+let
+  { TypeErasureHs.Nil
+      = #Tag {TypeErasureHs.List', TypeErasureHs.Nil, 1}
+  } in
+let
+  { TypeErasureHs.Cons
+      = \x  xs  ->
+          (#Tag {TypeErasureHs.List', TypeErasureHs.Cons, 0})
+            (x)
+            (xs)
+  } in
+...
+\end{lstlisting}
+\end{subfigure}
+\end{figure}
+\end{landscape}
+
+\subsection{Parameterised Modules}
+The Haskell Module system does have no concept of parameterised modules, therefore another representation is required. In the end,
+all functions will have to get passed the module parameters explicitly. This could be done either by just prepending the module
+argument list to all function definitions, or by wrapping the module parameters in a datatype and passing that around.
+
+How should datatypes be handled?
+
+\subsection{Class System}
+\paragraph{Calling Agda from Haskell}
+Simplistic approach -> pass dictionaries by hand
+Sophisticated -> Generate class and instance definitions from Agda
+
+\paragraph{Calling Haskell from Agda}
+Generate Agda Record definitions and instances using the Agda Instance arguments feature.
+This should be sound.
+
+\section{Optimizations}
+Inductivies families, bradley
+type erasure
+relevance analysis
+irrelevance
+forcing (same as bradley paper)?
+natish data types (also, when is plus a plus?)
+integer-ish data types
+TODO: smash, primitivise, caseopts
+
+\section{Contracts (for FFI)}
+
+let f be the Contract, of type "a -> b -> .... -> Y -> Dec X"
+
+test' : a -> c -> b -> Y
+test' ... = FFI CALL
+
+test : a -> c -> b -> assertT (f, X)
+test a c b = let y = assertV (f a b) (test' a c b)
+
+\section{UHC Type Checker}
+we need to typecheck calls from UHC to Agda. I guess we should somehow generate a HI file for Agda files?
+
+\section{Agda Type Checker}
+is there enough info inside the HI file for the Agda type checker? I doubt it...
+
+\section{Unified Compilation}
+let SUPERUC be the unified compilier, then a set of Haskell and/or Agda files
+could be compiled by passing them to SUPERUC. It would be possible to import
+Agda modules from HS and the other way around and compile them in one go.
+We probably don't want to support cyclic dependencies, and the FFI restrictions still apply.
+
+Probably interferes with the UHC/Agda module chasing algorithm.
+
+\section{Cabal Integration}
+long term, it would be nice to be able to compile Agda programs using Cabal and
+mix it with plain Haskell packages.
+
+\section{UHC Changes}
+For the proposal laid out so far, certain changes in UHC itself appear
+unavoidable. A preliminary list of this changes is as follows:
+
+\subsection{Index Datatypes by Aspects}
+TODO just an idea...
+Binds inside expressions can be indexed by aspects, which does
+not apply to data types. However, there may be multiple definitions
+of the same data type caused by worker/wrapper style transformations/optimizations.
+While this definitions could be encoded using a naming convention, a more explicit
+approach may be preferrable.
+
+\subsection{Module support for Core}
+At the moment, UHC can only compile exactly one core file to an executable.
+While this core file may import modules from other packages, it is not possible
+to import other Core files or build a package from Core files.
+
+\subsection{UHC Library (EH99) on hackage}
+UHC uses a traditional "./configure \&\& make" build process. If the parts used by the
+Agda backend could be split of into a normal cabal package residing on hackage,
+making this library a hard dependency of Agda might be possible.
+It would also allow the cabal dependency solver to figure out a compatible
+set of packages for both UHC and Agda, which may goes wrong in the current setup.
+(Cabal right now needs some manual guidance to pick packages compatible with both UHC and Agda)
+
+\subsection{Cabal support for UHC}
+The cabal support for installing packages into the UHC database is broken. If this would work, it
+would marginally simplfy the installation of the uhc-agda-base package.
+
+\begin{thebibliography}{1}
+
+\bibitem{FS91}
+  Peter W. Frey, David J. Slate.
+  \emph{Letter Recognition Using Holland-Style Adaptive Classifier}.
+  Kluwer Academic Publishers,
+  Machine Learning, 6, 161-182(1991).
+  Tom Dietterich, Boston,
+  1991.
+
+\end{thebibliography}
+
+\end{document}
