@@ -23,12 +23,16 @@ W   UHC cannot be installed via cabal/hackage.
 UHC Core Notes
 ================
 
+W   parse(print(x)) /= x  (HsName's (_Base vs _Modf), CBinds for apps using non-keyed/keyed)
+W   UHC requires import names to be of type HsName_Modf, else package lookup fails.
+    Should either be documented and maybe produce a warning if the wrong type of name
+    is given, or be fixed.
 R   UHC Core "Case" seems to depend on the order of alternatives, instead of using the CTags.
     Changing the order of alternatives without changing their body seems to alter the semantics.
     In UHC generated Core, alternatives are ordered by tag/alphabetical by constructor name.
     (Workaround: sort branches by tag/constructor before emitting core)
 R   Tags in Core expressions are fixed after parsing, so only tags in the datatype
-    metadata seem to matter (NOT yet verified)
+    metadata seem to matter (NOT yet verified, not used by Agda Core backend)
 R   When building a package (--pkg-build), ehc will not create the proper package files
     when the library contains a main function
 R   Function names have to start with a lower case letter.

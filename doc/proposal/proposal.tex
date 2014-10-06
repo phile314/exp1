@@ -66,6 +66,21 @@ code contains a lot of "coerce" statements to cheat the haskell type system. Not
 bugs in the Agda backend, this should be safe but shows that there is a mismatch between the
 two languages.
 
+\section{Epic}
+The Epic backend CITE of Agda uses the Epic language CITE as intermediate language, relying on the Epic
+compiler CITE to produce an executable. This backend incorporates some optimizations, but has not been
+maintained. The same also applies to the Epic compiler itself, which is unmaintained too.
+
+Nonetheless, the similarities between the UHC Core and the Epic language are striking. Together with
+the well-structured code of this backend, it should be possible to reuse a good share of code.
+
+TODO Epic Core, UHC Core
+
+\section{JS}
+
+\section{Feature Comparison}
+TODO
+
 \chapter{Prototype Compiler}
 A prototype backend for Agda has been created, and it has been shown that it is feasible to compile
 Agda using UHC Core. This prototype lacks any optimizations and contains only a rudimentary FFI
@@ -79,6 +94,17 @@ Parametrized Agda modules can be mapped to normal plain modules, where every fun
 modules parameter as additional arguments. (see \url{http://wiki.portal.chalmers.se/agda/pmwiki.php?n=ReferenceManual.Modules#param})
 
 \section{Haskell FFI}
+Writing all code in plain Agda might often be possible, but it might sometimes be more
+convenient to use Haskell Code from Agda and vice versa. Having such a facility would
+also allow reusing the many libraries available for Haskell, which would make using Agda
+for usable applications much easier.
+
+It would also be preferrable, if as much as possible type-safety gained by Agda could be
+preserved when interacting with the Haskell world. Creating an unsafe Agda-Haskell
+FFI, while being definitely easier, would risk introducing new bugs. Hence, an approach
+where the type-checking works across the language boundary is the main goal, wherever
+this is possible.
+
 \subsection{Type Erasure}
 
 TODO it seems that the indexes of data types are already get erased?
