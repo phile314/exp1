@@ -23,7 +23,7 @@
 %   leqno number on the left and equation centered 
 %   fleqn number on the rigth and  equation on the left side
 %   
-\lstset{basicstyle=\footnotesize, frame=single}
+\lstset{basicstyle=\scriptsize, frame=single}
 
 \title{Proposal for an Agda UHC Backend}
 \author{Philipp Hausmann \\
@@ -165,13 +165,183 @@ argument list to all function definitions, or by wrapping the module parameters 
 How should datatypes be handled?
 
 \subsection{Class System}
-\paragraph{Calling Agda from Haskell}
-Simplistic approach -> pass dictionaries by hand
-Sophisticated -> Generate class and instance definitions from Agda
+Recently, Agda has gained support for sort-of class system using so-called instance arguments. This can
+be used as follows:
+\lstinputlisting[firstline=12]{code/ClassAgda.agda}
 
-\paragraph{Calling Haskell from Agda}
-Generate Agda Record definitions and instances using the Agda Instance arguments feature.
-This should be sound.
+In contrast to Haskell, there are no explicit class definitions. In the example above,
+the record \texttt{Eq} doesn't differ from a normal record definition.
+The Haskell Class Constraints, on the other hand, are similiar to the instance
+arguments used in the definition of \texttt{test2} above.
+
+As long as no cross-language class support is intended, the two class systems can be
+regarded as completely seperate. If the amibition is to allow interaction across
+language borders, matters get more complicated.
+
+\paragraph{Translating Class Definitions}
+First, we will define how to map Agda class definitions to Haskell. We assume
+that class definitions are specilay marked in Agda (e.g. pragma or keyword).
+
+For each such class definition, we translate the record fields to functions
+in the Haskell class. Fields of the record, which have a class type, are
+translated into a class constraint. This proposal does not give any way
+to specify default values like in haskell. An example of the translation
+can be seen in \ref{lst:cls-agda-hs}.
+\begin{figure}
+\begin{subfigure}[b]{0.5\textwidth}
+\begin{lstlisting}
+record Eq (A : Set) : Set where
+  field
+    eq : A -> A -> Bool
+
+record Ord (A : Set) : Set where
+  field
+    eqInst : Eq A
+    lteq : A -> A -> Bool
+\end{lstlisting}
+\end{subfigure}
+\hspace{10pt}
+\begin{subfigure}[b]{0.5\textwidth}
+\begin{lstlisting}
+class Eq a where
+  eq :: a -> a -> Bool
+
+class (Eq a) => Ord a where
+  lteq :: a -> a -> Bool
+\end{lstlisting}
+\end{subfigure}
+\caption{Translating Agda classes to Haskell.}
+\label{lst:cls-agda-hs}
+\end{figure}
+
+
+Second, we also want to translate Haskell Class into Agda Classes. We only
+consider classes without functional dependencies for this. An open question is
+how Haskell default values should be encoded. The simplest approach would be
+to just ignore the default values and treat them like normal class members.
+
+An alternative would be to encode them explicitly in the Agda datatype, thereby
+allowing Agda instances to make use of them. There are many possibilities in
+how to encode this in the Agda datatype, one can be seen in listing \ref{lst:cls-hs-agda}.
+\begin{figure}
+\begin{subfigure}[b]{0.5\textwidth}
+\begin{lstlisting}
+class Eq a where
+  eq :: a -> a -> Bool
+
+class (Eq a) => Ord a where
+  lteq :: a -> a -> Bool
+  lt   :: a -> a -> Bool
+  lt x y = (lteq x y) && not (x eq y)
+\end{lstlisting}
+\end{subfigure}
+\hspace{10pt}
+\begin{subfigure}[b]{0.5\textwidth}
+\begin{lstlisting}
+data HasDefault (A : Set) : Set where
+  useImpl : A -> HasDefault A
+  useDefault : HasDefault A
+
+record Ord (A : Set) : Set where
+  field
+    eqInst : Eq A
+    lteq : A -> A -> Bool
+    lt' : HasDefault (A -> A -> Bool)
+
+lt : {A : Set} {{e : Ord A}}
+        -> A -> A -> Bool
+lt {{o}} with Ord.lt' o
+lt | useImpl x  = x
+lt | useDefault = magicLtDefault
+\end{lstlisting}
+\end{subfigure}
+\caption{Translating Haskell classes to Agda.}
+\label{lst:cls-hs-agda}
+\end{figure}
+
+\paragraph{Translating Haskell instances to Agda}
+Translating classes alone is not worth much, we also need to make the
+instances available. For this, we define how the instances get translated.
+The actual implementation of the instances will call the haskell code
+behind the scenes, for example using postulates or primitives. It is worth mentioning
+that this will also influence type checking in the agda world, as it will not be
+able to reason about the instance definitions in the Agda world. This might makes some
+of the Haskell type classes less useful inside Agda, but this doesn't apply to all of them.
+An example of the translation can be seen in \ref{lst:inst-hs-agda}.
+\begin{figure}
+\begin{subfigure}[b]{0.5\textwidth}
+\begin{lstlisting}
+instance Eq Bool where
+  eq x y = ....
+
+instance Ord Bool where
+  lteq = ....
+  -- use default version of lt
+\end{lstlisting}
+\end{subfigure}
+\hspace{10pt}
+\begin{subfigure}[b]{0.5\textwidth}
+\begin{lstlisting}
+instance
+  eqBool : Eq Bool
+  eqBool = record
+        { eq = magicCallHaskell }
+
+instance
+  ordBool : Ord Bool
+  ordBool = record
+        { eqInst = eqBool
+        ; lteq = magicCallHaskell
+        ; lt = useDefault }
+\end{lstlisting}
+\end{subfigure}
+\caption{Translating Haskell instances to Agda.}
+\label{lst:inst-hs-agda}
+\end{figure}
+
+
+
+\paragraph{Translating Agda instances to Haskell}
+The translation from Agda to Haskell is very similar and can be seen in listing \ref{lst:inst-agda-hs}.
+\begin{figure}
+\begin{subfigure}[b]{0.5\textwidth}
+\begin{lstlisting}
+instance
+  eqBool : Eq Bool
+  eqBool = record { eq = ... }
+
+instance
+  ordBool : Ord Bool
+  ordBool = record
+        { eqInst = eqBool
+        ; lteq = ...
+        ; lt = useDefault }
+\end{lstlisting}
+\end{subfigure}
+\hspace{10pt}
+\begin{subfigure}[b]{0.5\textwidth}
+\begin{lstlisting}
+instance Eq Bool where
+  eq x y = magicCallAgda
+
+instance Ord Bool where
+  lteq = magicCallAgda
+  -- use default version of lt
+\end{lstlisting}
+\end{subfigure}
+\caption{Translating Agda instances to Haskell.}
+\label{lst:inst-agda-hs}
+\end{figure}
+
+
+\paragraph{Feasability}
+For the most simple classes like \texttt{Eq}, implementing it is expected to be
+possible without any major changes in UHC. UHC uses dictionary-passing in it's Core representation,
+and it should be possible to perform this mapping for Agda Code too.
+
+For the more complicated cases with defaults and/or nested classes, this might pose more of a challenge.
+I also recommend leaving out Agda datatype/postulate classes for the time being.
+
 
 \section{Optimizations}
 Inductivies families, bradley
