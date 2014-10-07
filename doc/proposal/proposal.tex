@@ -164,8 +164,11 @@ argument list to all function definitions, or by wrapping the module parameters 
 
 How should datatypes be handled?
 
+\subsection{Plain functions and datatypes}
+simple datatypes + functions
+
 \subsection{Class System}
-Recently, Agda has gained support for sort-of class system using so-called instance arguments. This can
+Recently, Agda has gained support for a sort-of class system using so-called instance arguments. This can
 be used as follows:
 \lstinputlisting[firstline=12]{code/ClassAgda.agda}
 
@@ -342,6 +345,37 @@ and it should be possible to perform this mapping for Agda Code too.
 For the more complicated cases with defaults and/or nested classes, this might pose more of a challenge.
 I also recommend leaving out Agda datatype/postulate classes for the time being.
 
+\subsection{Type-Checking interfacing}
+While a lot has been said about how to translate from Agda to Haskell and vice versa,
+the question about when and by whom this translation is done has been left open. Clearly,
+the UHC Haskell Compiler will need to know at least the Haskell-version of the Agda
+function/datatype signatures. The same goes for the Agda type checker, which needs to
+know the Agda representation of the used Haskell entitites.
+
+As porting both UHC and Agda to a shared representation of Agda and Haskell code
+is infeasible, the necessary information needs to be communicated in some other way.
+This basically means either creating a preprocessor which will emit the information
+necessary for the type checker, or teaching UHC the Agda language and the other way round.
+
+Implementing Agda/Haskell support in the other compiler is likely to require extensive changes
+to both code bases. Creating preprocessors or something similar is less intrusive and is expected
+to be easier to implement.
+
+This preprocessor might even be embedded into the compiler, for example Agda might create
+a \".hi\" file which UHC would use for type checking (this is just speculation...). The other way round it seems easiest to
+produce an actual Agda file, which contains the correct pragmas for interfacing with the haskell code.
+
+\subsection{Compilation Units}
+Let a compilation unit be a set of files to be compiled. The goal is to be able to compile a set of
+Haskell or Agda files, which might depend on Agda or Haskell code defined in other compile units.
+
+Support for mixing Haskell and Agda files inside the same compilation unit is not required, as this
+might would require fiddling with the import chasing algorithm of both uhc and agda. Nonetheless,
+it might be possible to implement this later.
+
+\section{UHC Core Specification}
+There is no complete specification of the UHC Core interface as of writing. The interface
+should be documented.
 
 \section{Optimizations}
 Inductivies families, bradley
@@ -363,19 +397,6 @@ test' ... = FFI CALL
 test : a -> c -> b -> assertT (f, X)
 test a c b = let y = assertV (f a b) (test' a c b)
 
-\section{UHC Type Checker}
-we need to typecheck calls from UHC to Agda. I guess we should somehow generate a HI file for Agda files?
-
-\section{Agda Type Checker}
-is there enough info inside the HI file for the Agda type checker? I doubt it...
-
-\section{Unified Compilation}
-let SUPERUC be the unified compilier, then a set of Haskell and/or Agda files
-could be compiled by passing them to SUPERUC. It would be possible to import
-Agda modules from HS and the other way around and compile them in one go.
-We probably don't want to support cyclic dependencies, and the FFI restrictions still apply.
-
-Probably interferes with the UHC/Agda module chasing algorithm.
 
 \section{Cabal Integration}
 long term, it would be nice to be able to compile Agda programs using Cabal and
