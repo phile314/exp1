@@ -165,12 +165,43 @@ argument list to all function definitions, or by wrapping the module parameters 
 
 How should datatypes be handled?
 
+\subsection{Names}
+The naming policies in Haskell and Agda differ. Both allow the use of unicode symbols in names, but Haskell enforces
+that constructor names always start with an upper case letter. It also requires constructor names to be unique
+per module, whereas Agda allows using the same name for multiple constructors.
+
+The simplest approach is to just restrict the FFI to entities only containing names valid in both worlds.
+This could be extended using a more advanced encoding to solve some of the problems, for example
+by converting the first letter of the generated HS constructors to upper case.
+
+The best case would be to have a complete encoding, mapping all possible names across the language boundary. It is not known
+if such an encoding exists, given the constraint that the generated names should be human-readable.
+
+As an alternative, it might also be a good idea to allow the users to choose the exported name of the entities themselves.
+This is especially true when exporting Agda entities, as Agda features a bigger namespace.
+
 \subsection{Plain functions and datatypes}
 simple datatypes + functions
 
 \subsection{Depdendently typed functions and datatypes}
-TODO
-\cite{Osera:2012:DI:2103776.2103779}
+As with most FFI's, there is a feature-gap between the two languages involved. While for plain datatypes a clear
+translation between the two worlds exist, this is no longer the case when dependent types are used.
+
+The usual approach to bridge this gap is to let the user define translation functions, which take
+values from one world translating it into the other. For the Haskell FFI, this corresponds to marhsalling
+datatypes from C to HS and back. In Haskell, this translation is done on the HS side.
+
+In contrast, \cite{Osera:2012:DI:2103776.2103779} treats the conversion functions as special entities
+which live inbetween the two worlds.
+
+
+I propose to adapt the HS FFI design, by forcing all translation functions to be defined in Agda.
+This avoids making large changes to the Agda or Haskell language. The Agda-HS FFI itself will remain
+restricted to plain types, dependent types live only inside the Agda world.
+
+The translation function from the plain types to the dependent types could often be partial,
+which will require it to either live in e.g. the Maybe monad or alternatively using Contracts/runtime checks.
+Support for such contracts is out of scope for this proposal, but maybe added later on.
 
 \subsection{Class System}
 Recently, Agda has gained support for a sort-of class system using so-called instance arguments. This can
@@ -367,8 +398,13 @@ to both code bases. Creating preprocessors or something similar is less intrusiv
 to be easier to implement.
 
 This preprocessor might even be embedded into the compiler, for example Agda might create
-a \".hi\" file which UHC would use for type checking (this is just speculation...). The other way round it seems easiest to
-produce an actual Agda file, which contains the correct pragmas for interfacing with the haskell code.
+a \".hi\" file which UHC would use for type checking (this is just speculation...). It is worth noting
+that it is not possible to encode this information in a plain Haskell file. It might suffice for
+exporting Agda functions to generate corresponding Haskell FFI declarations. But the Haskell FFI
+by default has no way of expressing the mapping between datatypes.
+
+Passing information from Haskell to Agda appears easiest by generating an Agda file,
+which contains the correct pragmas for interfacing with the haskell code.
 
 \subsection{Compilation Units}
 Let a compilation unit be a set of files to be compiled. The goal is to be able to compile a set of
