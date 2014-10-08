@@ -181,6 +181,55 @@ As an alternative, it might also be a good idea to allow the users to choose the
 This is especially true when exporting Agda entities, as Agda features a bigger namespace.
 
 \subsection{Plain functions and datatypes}
+\begin{figure}
+\begin{subfigure}[b]{0.5\textwidth}
+\begin{lstlisting}
+id : {A : Set} -> A -> A
+id x = x
+
+rnk2 : {A : Set} -> A
+    -> ((B : Set) -> B -> A)
+rnk2 = ...
+
+data List (A : Set) : Set where
+  nil : List A
+  cons : A -> List A -> List A
+
+-- Agda doesn't support records with
+-- multiple constructors. Could be
+-- mapped to a normal datatype.
+data MultiRecord : Set where
+  Rec1 : String -> Int -> MultiRecord
+  Rec2 : String -> Bool -> MultiRecord
+\end{lstlisting}
+\end{subfigure}
+\hspace{10pt}
+\begin{subfigure}[b]{0.5\textwidth}
+\begin{lstlisting}
+id :: forall a . a -> a
+id x = x
+
+rnk2 :: forall a . a
+    -> (forall b . b -> a)
+rnk2 = ..
+
+data List a where
+  Nil :: List a
+  Cons :: a -> List a -> List a
+
+
+
+
+data MultiRecord
+  = Rec1 { f1 :: String, f2 :: Int }
+  | Rec2 { f1 :: String, f3 :: Bool }
+\end{lstlisting}
+\end{subfigure}
+\caption{The mapping between plain Agda and Haskell functions and datatypes.}
+\label{lst:inst-agda-hs}
+\end{figure}
+
+
 simple datatypes + functions
 
 \subsection{Depdendently typed functions and datatypes}
@@ -205,8 +254,12 @@ Support for such contracts is out of scope for this proposal, but maybe added la
 
 \subsection{Class System}
 Recently, Agda has gained support for a sort-of class system using so-called instance arguments. This can
-be used as follows:
+be used as seen in listing \ref{lst:agda-inst-ex}.
+\begin{figure}
 \lstinputlisting[firstline=12]{code/ClassAgda.agda}
+\caption{Example Agda code using instance arguments.}
+\label{lst:agda-inst-ex}
+\end{figure}
 
 In contrast to Haskell, there are no explicit class definitions. In the example above,
 the record \texttt{Eq} doesn't differ from a normal record definition.
@@ -407,7 +460,7 @@ Passing information from Haskell to Agda appears easiest by generating an Agda f
 which contains the correct pragmas for interfacing with the haskell code.
 
 \subsection{Compilation Units}
-Let a compilation unit be a set of files to be compiled. The goal is to be able to compile a set of
+Let a compilation unit be a set of files to be compiled together. The goal is to be able to compile a set of
 Haskell or Agda files, which might depend on Agda or Haskell code defined in other compile units.
 
 Support for mixing Haskell and Agda files inside the same compilation unit is not required, as this
