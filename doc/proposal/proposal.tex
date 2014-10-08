@@ -6,6 +6,7 @@
 \usepackage{listings}
 \usepackage{caption}
 \usepackage{pdflscape}
+\usepackage{cite}
 % font size could be 10pt (default), 11pt or 12 pt
 % paper size coulde be letterpaper (default), legalpaper, executivepaper,
 % a4paper, a5paper or b5paper
@@ -166,6 +167,10 @@ How should datatypes be handled?
 
 \subsection{Plain functions and datatypes}
 simple datatypes + functions
+
+\subsection{Depdendently typed functions and datatypes}
+TODO
+\cite{Osera:2012:DI:2103776.2103779}
 
 \subsection{Class System}
 Recently, Agda has gained support for a sort-of class system using so-called instance arguments. This can
@@ -431,16 +436,8 @@ set of packages for both UHC and Agda, which may goes wrong in the current setup
 The cabal support for installing packages into the UHC database is broken. If this would work, it
 would marginally simplfy the installation of the uhc-agda-base package.
 
-\begin{thebibliography}{1}
 
-\bibitem{FS91}
-  Peter W. Frey, David J. Slate.
-  \emph{Letter Recognition Using Holland-Style Adaptive Classifier}.
-  Kluwer Academic Publishers,
-  Machine Learning, 6, 161-182(1991).
-  Tom Dietterich, Boston,
-  1991.
-
-\end{thebibliography}
+\bibliography{bib}{}
+\bibliographystyle{plain}
 
 \end{document}
