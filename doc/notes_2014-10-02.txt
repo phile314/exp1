@@ -1,0 +1,26 @@
+02.10.2014 13:00
+Philipp, Atze, Wouter
+---------------------------------
+Exp. Project deliverables
+  proposal
+  code
+  installation instructions (use the github wiki)
+  presentation colloquium early november
+
+
+module support
+  investigate HS backpack, ml
+
+"when is a function a plus/minus...?"
+  maybe pragma better (more explicit)?
+  papers:
+    dimitriv, constraint solver type level numbers
+
+(FFI)-Contracts
+  papers:
+  - contracts for haskell, johan heuring
+  - dependent interoperability
+
+
+09.10.2014  Send proposal draft to Wouter, Atze
+16.10.2014  Next meeting, 13:00
