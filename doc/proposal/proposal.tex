@@ -491,17 +491,21 @@ A worker-wrapper approach is expected to be feasible. In addition, some special
 HS or Agda function to convert a primitive datatype to the HS-integer datatype and vice-versa could be
 implemented.
 
-\section{Contracts (for FFI) - WIP}
+\section{Contracts (for FFI)}
 The FFI interface proposed in \ref{sec:prop:hs-ffi} limits the cross-language interaction
 to "plain" datatypes. As described before, lifting such "plain" datatypes to more expressive
-Agda values might be partial. For example, converting a Haskell List to an Agda Vector
-of length N may fail at runtime. Instead of lifting every translation function into
-a partiality-Monad, we propose to use Contracts for this purpose. (Contracts could
-theoretically also be used inside Agda itself, but this would defeat the purpose of Agda.)
+Agda values might be partial. Similarly, the HS type system might not be strong enough
+to encode invariants that are known to hold, eg $x + y == y + x$.
 
-The additional contract can be seen as the precondition of the Agda function. To implement such a
-scheme, a decision function is required. If the precondition is not met, the function call
-will fail at runtime. A short example of the desired functionality can be seen in listing \ref{lst:agda-con-ex}.
+It would be favourable to have a way to specify the post-/precondition at the language-boundary
+to avoid lifting all code into a partiality-monad such as Maybe.
+We propose to use Contracts for this purpose. (Contracts could
+theoretically also be used for pure Agda Code, but this would defeat the purpose of Agda. (TODO check?))
+
+The additional contract can be seen as the precondition of the Agda function or postcondition of the
+HS function. To implement such a scheme, a decision function is required. If the pre-/postcondition is not met,
+the function call will fail at runtime. A short example of the desired functionality can be seen in listing \ref{lst:agda-con-ex}
+for the case of calling HS from Agda.
 
 \begin{figure}
 \lstinputlisting[firstline=28,lastline=85]{code/ContractsAgda.agda}
@@ -512,6 +516,7 @@ will fail at runtime. A short example of the desired functionality can be seen i
 It may be desirable to create special syntax for specifying such contracts, but it is
 not clear what such syntax would look like.
 
+TODO does this makes sense for the `HS calls Agda` direction? this looks like a bad idea.
 \section{Cabal Integration - WIP}
 long term, it would be nice to be able to compile Agda programs using Cabal and
 mix it with plain Haskell packages.
