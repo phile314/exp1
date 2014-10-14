@@ -26,6 +26,8 @@
 %   
 \lstset{basicstyle=\scriptsize, frame=single}
 
+\bibliographystyle{alpha}
+
 \title{Proposal for an Agda UHC Backend}
 \author{Philipp Hausmann \\
     4003373 \\
@@ -414,6 +416,9 @@ argument list to all function definitions, or by wrapping the module parameters 
 How should datatypes be handled?
 
 \subsection{Type-Checking interfacing}
+
+TODO rewrite with "foreign" HS approach
+
 While a lot has been said about how to translate from Agda to Haskell and vice versa,
 the question about when and by whom this translation is done has been left open. Clearly,
 the UHC Haskell Compiler will need to know at least the Haskell-version of the Agda
@@ -450,15 +455,38 @@ it might be possible to implement this later.
 There is no complete specification of the UHC Core interface as of writing. The interface
 should be documented.
 
-\section{Optimizations - WIP}
-Inductivies families, bradley
-type erasure
-relevance analysis
-irrelevance
-forcing (same as bradley paper)?
-natish data types (also, when is plus a plus?)
-integer-ish data types
-TODO: smash, primitivise, caseopts
+\section{Optimizations}
+Due to the high-level nature of Agda, it is vital to optimize the generated
+executables to achieve a good performance. I will not explain any optimizations here,
+but will restrict myself to documenting if/how they apply to this proposal.
+For a detailed description, please see \cite{fredriksson2011totaly} and \cite{Brady-store-indices2004}.
+
+For most optimizations, the problems arise when traversing the HS-Agda boundary. The worker-wrapper
+approach can migitate this problems, while imposing a slight performance penalty due to the
+datatype translation necessary at the language border.
+\paragraph{Forcing}
+Changes datatype signature, hence requires special attention for the FFI.
+A worker-wrapper approach is expected to be feasible.
+
+\paragraph{Erasure}
+Changes function and/or datatype signatures, hence requires special attention for the FFI.
+A worker-wrapper approach is expected to be feasible.
+
+\paragraph{Injection Detection}
+Depends on tag assignment. Not clear if this can work if Agda modules can be compiled
+seperatly. Might also interfere with the tag-invariants expected by UHC.
+For module-scoped Agda-only datatypes, this opimization should be possible without
+problems.
+
+\paragraph{Smashing}
+I expect no problems, as this optimization only changes the computation inside a function, but not
+its signature or semantics.
+
+\paragraph{Primitive Data (Nat-like)}
+Changes function and/or datatype signatures, hence requires special attention for the FFI.
+A worker-wrapper approach is expected to be feasible. In addition, some special
+HS or Agda function to convert a primitive datatype to the HS-integer datatype and vice-versa could be
+implemented.
 
 \section{Contracts (for FFI) - WIP}
 
