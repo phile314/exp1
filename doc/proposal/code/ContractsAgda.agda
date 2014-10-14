@@ -45,7 +45,7 @@ isEven? (suc (suc b)) | no np = no f
 -- I  : input value
 -- O  : output value
 -- PF : proof function. Computes the type of the proof object,
---      given the input value.
+--      given the output value.
 -- F  : The function to execute.
 data Safe (I : Set) (O : Set) (PF : O -> Set) (F : I -> O) : Set where
   safe :  (i : I) -> (o : O) -> PF o -> Eq o (F i) -> Safe I O PF F

@@ -88,9 +88,35 @@ TODO
 
 \chapter{Prototype Compiler}
 A prototype backend for Agda has been created, and it has been shown that it is feasible to compile
-Agda using UHC Core. This prototype lacks any optimizations and contains only a rudimentary FFI
-interface, which is unidirectional (Agda to Haskell). It is also restricted to compiling just one
-Agda module, and support for coinduction is missing too.
+Agda using UHC Core. As the name suggests, this is just a prototype and not suitable for any serious use.
+
+The prototype is based on the Epic backend of Agda. Because the Epic and UHC Core Languages are
+very similar, this proved to be a reasonable approach. For a short overview of the two target
+languages, see REF.
+
+The prototype supports compiliation of one Agda module, support for multiple Agda modules is missing.
+
+It is possible to link the Agda module with one or more Haskell modules. Agda postulates
+and datatypes can be mapped to Haskell datatypes, altough the mapping has to be specified
+by the user on the UHC Core level with pragmas (see REF).
+
+No optimizations from the Epic backend have been ported to the UHC backend. While this
+would have been straightforward for some of the optimizations, it would have made the
+interfacing with Haskell more complicated.
+
+A small set of builtin functions have been defined, which are implemented in Haskell
+and installed into the UHC package database by the UHC Agda backend automatically.
+All Agda programs pull in these builtins automatically (REF).
+
+The Agda UHC backend generates an UHC Core AST, using functions and datatypes exported
+by the UHC library EH99. The constructed AST is then serialized in textual or binary format
+to the disk. The serialized file is then compiled by calling UHC with the correct parameters.
+
+It is also worth noting that this prototype only supports a subset of Agda. Known to be
+missing is support for Coinduction.
+
+Links to the source code, installation and usage instructions can be found
+at \url{https://github.com/phile314/agda/wiki}.
 
 \chapter{Proposal}
 \section{Agda Module support - WIP}
@@ -470,6 +496,7 @@ datatype translation necessary at the language border.
 \paragraph{Forcing}
 Changes datatype signature, hence requires special attention for the FFI.
 A worker-wrapper approach is expected to be feasible.
+TODO what can be used from the TypeChecker forcing infrastructure?
 
 \paragraph{Erasure}
 Changes function and/or datatype signatures, hence requires special attention for the FFI.
@@ -517,6 +544,8 @@ It may be desirable to create special syntax for specifying such contracts, but 
 not clear what such syntax would look like.
 
 TODO does this makes sense for the `HS calls Agda` direction? this looks like a bad idea.
+TODO what if there are many invariants for an FFI function? e.g. + has
+commutativity, associativity, etc... What about distributivity?
 \section{Cabal Integration - WIP}
 long term, it would be nice to be able to compile Agda programs using Cabal and
 mix it with plain Haskell packages.
