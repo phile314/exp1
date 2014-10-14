@@ -89,8 +89,8 @@ interface, which is unidirectional (Agda to Haskell). It is also restricted to c
 Agda module, and support for coinduction is missing too.
 
 \chapter{Proposal}
-\section{Agda Module support}
-\subsection{Parameterised Modules}
+\section{Agda Module support - WIP}
+\subsection{Parameterised Modules - WIP}
 Parametrized Agda modules can be mapped to normal plain modules, where every function get's the
 modules parameter as additional arguments. (see \url{http://wiki.portal.chalmers.se/agda/pmwiki.php?n=ReferenceManual.Modules#param})
 
@@ -222,7 +222,7 @@ restricted to plain types, dependent types live only inside the Agda world.
 
 The translation function from the plain types to the dependent types could often be partial,
 which will require it to either live in e.g. the Maybe monad or alternatively using Contracts/runtime checks.
-Support for such contracts is out of scope for this proposal, but maybe added later on.
+TODO add reference to contract section
 
 \subsection{Class System}
 Recently, Agda has gained support for a sort-of class system using so-called instance arguments. This can
@@ -430,7 +430,7 @@ to both code bases. Creating preprocessors or something similar is less intrusiv
 to be easier to implement.
 
 This preprocessor might even be embedded into the compiler, for example Agda might create
-a \".hi\" file which UHC would use for type checking (this is just speculation...). It is worth noting
+a \texttt{.hi} file which UHC would use for type checking (this is just speculation...). It is worth noting
 that it is not possible to encode this information in a plain Haskell file. It might suffice for
 exporting Agda functions to generate corresponding Haskell FFI declarations. But the Haskell FFI
 by default has no way of expressing the mapping between datatypes.
