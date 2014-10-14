@@ -1,4 +1,6 @@
 \documentclass[12pt, a4paper, twoside]{report}
+\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
 \usepackage{hyperref}
 \usepackage{amsmath}
 \usepackage{multirow}
@@ -97,6 +99,7 @@ Parametrized Agda modules can be mapped to normal plain modules, where every fun
 modules parameter as additional arguments. (see \url{http://wiki.portal.chalmers.se/agda/pmwiki.php?n=ReferenceManual.Modules#param})
 
 \section{Haskell FFI}
+\label{sec:prop:hs-ffi}
 Writing all code in plain Agda might often be possible, but it might sometimes be more
 convenient to use Haskell Code from Agda and vice versa. Having such a facility would
 also allow reusing the many libraries available for Haskell, which would make using Agda
@@ -489,15 +492,25 @@ HS or Agda function to convert a primitive datatype to the HS-integer datatype a
 implemented.
 
 \section{Contracts (for FFI) - WIP}
+The FFI interface proposed in \ref{sec:prop:hs-ffi} limits the cross-language interaction
+to "plain" datatypes. As described before, lifting such "plain" datatypes to more expressive
+Agda values might be partial. For example, converting a Haskell List to an Agda Vector
+of length N may fail at runtime. Instead of lifting every translation function into
+a partiality-Monad, we propose to use Contracts for this purpose. (Contracts could
+theoretically also be used inside Agda itself, but this would defeat the purpose of Agda.)
 
-let f be the Contract, of type "a -> b -> .... -> Y -> Dec X"
+The additional contract can be seen as the precondition of the Agda function. To implement such a
+scheme, a decision function is required. If the precondition is not met, the function call
+will fail at runtime. A short example of the desired functionality can be seen in listing \ref{lst:agda-con-ex}.
 
-test' : a -> c -> b -> Y
-test' ... = FFI CALL
+\begin{figure}
+\lstinputlisting[firstline=28,lastline=85]{code/ContractsAgda.agda}
+\caption{How Contracts in Agda could look like.}
+\label{lst:agda-con-ex}
+\end{figure}
 
-test : a -> c -> b -> assertT (f, X)
-test a c b = let y = assertV (f a b) (test' a c b)
-
+It may be desirable to create special syntax for specifying such contracts, but it is
+not clear what such syntax would look like.
 
 \section{Cabal Integration - WIP}
 long term, it would be nice to be able to compile Agda programs using Cabal and
