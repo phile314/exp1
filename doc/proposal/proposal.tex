@@ -9,6 +9,7 @@
 \usepackage{caption}
 \usepackage{pdflscape}
 \usepackage{cite}
+\usepackage{syntax}
 % font size could be 10pt (default), 11pt or 12 pt
 % paper size coulde be letterpaper (default), legalpaper, executivepaper,
 % a4paper, a5paper or b5paper
@@ -29,6 +30,10 @@
 \lstset{basicstyle=\scriptsize, frame=single}
 
 \bibliographystyle{alpha}
+
+%\makeatletter
+%\newcommand*{\textoverline}[1]{$\overline{\hbox{#1}}\m@th$}
+%\makeatother
 
 \title{Proposal for an Agda UHC Backend}
 \author{Philipp Hausmann \\
@@ -71,20 +76,44 @@ code contains a lot of "coerce" statements to cheat the haskell type system. Not
 bugs in the Agda backend, this should be safe but shows that there is a mismatch between the
 two languages.
 
+In regard to creating an FFI between Agda and Haskell, I expect similar problems as with the approach
+outlined in the UHC Core proposal in chapter \ref{chp:proposal}. As GHC features a more expressive type system,
+it might be possible to extend the mapping to a greater subset of Agda, but a complete mapping
+between Agda and Haskell still seems unattainable.
 \section{Epic}
-The Epic backend CITE of Agda uses the Epic language CITE as intermediate language, relying on the Epic
-compiler CITE to produce an executable. This backend incorporates some optimizations, but has not been
+The Epic backend \cite{fredriksson2011totaly} of Agda uses the Epic language \cite{Brady:2011:ELG:2362963.2362968} as intermediate
+language, relying on the Epic compiler to produce an executable. This backend incorporates some optimizations, but has not been
 maintained. The same also applies to the Epic compiler itself, which is unmaintained too.
 
-Nonetheless, the similarities between the UHC Core and the Epic language are striking. Together with
-the well-structured code of this backend, it should be possible to reuse a good share of code.
+The backend is well-structured and the code is of reasonable quality. It features an FFI to the Epic language,
+which is used to define some basic primitives. It is not possible to interact with any Haskell code easily,
+as Epic is compiled to C.
+
+The backend features the most extensive optimizations out of all three backends. This backend is currently not able
+to compile the whole Agda standard library, but small standalone programs can be made work with some effort.
+
 
 TODO Epic Core, UHC Core
 
 \section{JS}
 
 \section{Feature Comparison}
-TODO
+\begin{figure}
+\begin{tabular}{l | l | l | l}
+& MAlonzo (HS) & Epic & JS \\
+\hline
+Forcing & & Yes & \\
+Erasure & No & Yes & No \\
+Injection & & Yes & \\
+Smashing & & Yes & No \\
+Primitive Data & Builtins only (Nat) & Yes & Builtins only (Nat) \\
+Partial Evaluation & No & Manual (Pragmas) & No \\
+\hline
+User Documentation & Usable & Bad & Bad \\
+IO/FFI & Okay & Bad & Bad \\
+\hline
+\end{tabular}
+\end{figure}
 
 \chapter{Prototype Compiler}
 A prototype backend for Agda has been created, and it has been shown that it is feasible to compile
@@ -94,19 +123,45 @@ The prototype is based on the Epic backend of Agda. Because the Epic and UHC Cor
 very similar, this proved to be a reasonable approach. For a short overview of the two target
 languages, see REF.
 
+%\begin{figure}
+\begin{grammar}
+<term> ::= variable
+\alt <term> <term>*
+\alt Con <int> <term>*
+\end{grammar}
+%\end{figure}
+
 The prototype supports compiliation of one Agda module, support for multiple Agda modules is missing.
 
 It is possible to link the Agda module with one or more Haskell modules. Agda postulates
 and datatypes can be mapped to Haskell datatypes, altough the mapping has to be specified
-by the user on the UHC Core level with pragmas (see REF).
+by the user on the UHC Core level with pragmas. An example can be seen in listing \ref{lst:agda-hs-pragmas}.
+\begin{figure}
+\begin{lstlisting}
+postulate
+    IO      : Set -> Set
+    return  : {A : Set} -> A -> IO A
+    _>>=_   : {A B : Set} -> IO A -> (A -> IO B) -> IO B
+    putStrLn : String -> IO Unit
+
+
+{-# COMPILED_CORE return (\a x -> UHC.Agda.Builtins.primReturn x) #-}
+{-# COMPILED_CORE _>>=_ (\a b x y -> UHC.Agda.Builtins.primBind x y) #-}
+{-# COMPILED_CORE putStrLn (UHC.Agda.Builtins.primPutStrLn) #-}
+\end{lstlisting}
+\caption{Agda pragmas to map Agda functions to Core functions.}
+\label{lst:agda-hs-pragmas}
+\end{figure}
 
 No optimizations from the Epic backend have been ported to the UHC backend. While this
 would have been straightforward for some of the optimizations, it would have made the
 interfacing with Haskell more complicated.
 
 A small set of builtin functions have been defined, which are implemented in Haskell
-and installed into the UHC package database by the UHC Agda backend automatically.
-All Agda programs pull in these builtins automatically (REF).
+and installed into the UHC package database by the UHC Agda backend automatically. These
+builtins export the Haskell IO Monad to UHC Core in a format suitable for Agda.
+The builtins can then be bound to Agda identifiers using the \texttt{COMPILED_CORE} pragmas
+already seen in listing \ref{lst:agda-hs-pragmas}.
 
 The Agda UHC backend generates an UHC Core AST, using functions and datatypes exported
 by the UHC library EH99. The constructed AST is then serialized in textual or binary format
@@ -119,6 +174,7 @@ Links to the source code, installation and usage instructions can be found
 at \url{https://github.com/phile314/agda/wiki}.
 
 \chapter{Proposal}
+\label{chp:proposal}
 \section{Agda Module support - WIP}
 \subsection{Parameterised Modules - WIP}
 Parametrized Agda modules can be mapped to normal plain modules, where every function get's the
@@ -574,6 +630,7 @@ making this library a hard dependency of Agda might be possible.
 It would also allow the cabal dependency solver to figure out a compatible
 set of packages for both UHC and Agda, which may goes wrong in the current setup.
 (Cabal right now needs some manual guidance to pick packages compatible with both UHC and Agda)
+It would also make it easier to use the cabal sandbox feature for development.
 
 \subsection{Cabal support for UHC}
 The cabal support for installing packages into the UHC database is broken. If this would work, it
