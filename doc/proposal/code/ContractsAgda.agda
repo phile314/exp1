@@ -79,9 +79,9 @@ testSafe = assertV isEven testDangerous isEven?
 testSafe2 : (x : A) -> Safe A Nat isEven testDangerous
 testSafe2 = assertV isEven testDangerous isEven?
 
--- It is also possible to assert non-sense,
--- but impossible to give non-sense a valid type.
-non-sense : {!!}
+-- It is also possible to assert non-sense like "IsEven 1",
+-- but impossible to produce an inhabitant.
+non-sense : (x : A) -> Safe A Nat isEven (\x -> 1)
 non-sense = assertV isEven (\x -> 1) isEven?
 
 p : {!!}
@@ -91,13 +91,13 @@ p | safe i o x x₁ = {!!}
 k : {!!}
 k = assertV isEven (\x -> 10) isEven?
 
-l : {!!}
+l : (x : Nat) → Safe Nat Nat isEven (λ _ → suc zero)
 l = assertV isEven (\x -> 1) isEven?
 
 m : {!!}
 m with k 10
 m | safe i .10 x (refl .10) = {!!}
 
-n : {!!}
+n : Nat
 n with l 1
-n | safe i .1 x (refl .1) = {!x!}
+n | safe i .1 x (refl .1) = 0
