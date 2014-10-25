@@ -3,6 +3,7 @@
 \usepackage[utf8x]{inputenc}
 \usepackage{hyperref}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{multirow}
 \usepackage{subcaption}
 \usepackage{listings}
@@ -28,6 +29,7 @@
 %   fleqn number on the rigth and  equation on the left side
 %   
 \lstset{basicstyle=\scriptsize, frame=single}
+
 
 \bibliographystyle{alpha}
 
@@ -120,16 +122,35 @@ A prototype backend for Agda has been created, and it has been shown that it is 
 Agda using UHC Core. As the name suggests, this is just a prototype and not suitable for any serious use.
 
 The prototype is based on the Epic backend of Agda. Because the Epic and UHC Core Languages are
-very similar, this proved to be a reasonable approach. For a short overview of the two target
+very trimilar, this proved to be a reasonable approach. For a short overview of the two target
 languages, see REF.
 
-%\begin{figure}
-\begin{grammar}
-<term> ::= variable
-\alt <term> <term>*
-\alt Con <int> <term>*
-\end{grammar}
-%\end{figure}
+\begin{landscape}
+\begin{figure}
+\begin{tabular}{l c r l c r l r}
+\hline
+& \multicolumn{3}{l}{Epic Language} & \multicolumn{3}{l}{UHC Core} & \\
+\hline
+Terms & $t$ & $::=$ & $x$               & $t$ & $::=$ & $x$ & Variable \\
+& & \textbar & $t$ $\vec{t}$            & & \textbar & $t$ $t$ & Application\\
+& & \textbar & $\lambda x \rightarrow t$ & & \textbar & $\lambda x \rightarrow t$ & Lambda abstraction \\
+& & \textbar & Con $i$ $\vec{t}$        & & \textbar & Con $i$ $\vec{t}$ & Constructor application \\
+& & \textbar & if $t$ then $t$ else $t$ & & & & If term \\
+& & \textbar & case $t$ of $\vec{alt}$  & & \textbar & case $t$ of $\vec{alt}$ & Case term \\
+& & \textbar & let $x$ = $t$ in $t$     & & \textbar & let $x$ = $t$ in $t$ & Let term \\
+& & &                                   & & \textbar & let! $x$ = $t$ in $t$ & Strict Let term \\
+& & \textbar & lazy $t$                 & & & & Suspended term \\
+& & \textbar & $t$ $!$ $i$              & & & & Field projection \\
+& & \textbar & $i$                      & & \textbar & $i$ & Constant \\
+\\
+Alternatives & $alt$ & ::= & Con $i$ $\vec{x}$ $\rightarrow$ $t$     & $alt$ & $::=$ & Con $i$ $\vec{x}$ $\rightarrow$ $t$ & Constructors \\
+& & \textbar & $i$ $\rightarrow$ $t$                    & & & & Integer constants \\
+& & \textbar & default $\rightarrow$ $t$                & & \textbar & default $\rightarrow$ $t$ & Default alternative
+\end{tabular}
+\caption{The abstract syntax of Epic and UHC Core. Irrelevant parts of the syntax have been omitted for clarity. We use the
+$\vec{t}$ notation to denote a list of things.}
+\end{figure}
+\end{landscape}
 
 The prototype supports compiliation of one Agda module, support for multiple Agda modules is missing.
 
@@ -180,6 +201,18 @@ at \url{https://github.com/phile314/agda/wiki}.
 Parametrized Agda modules can be mapped to normal plain modules, where every function get's the
 modules parameter as additional arguments. (see \url{http://wiki.portal.chalmers.se/agda/pmwiki.php?n=ReferenceManual.Modules#param})
 
+\section{Compiling Agda to UHC Core}
+The basic algorithm to compile Agda to UHC Core has already been explored in the prototype. More
+advanced Agda features are not supported in the prototype, and I expect that completing the
+Agda-Core translation will definitely require a fair amount of work. Keeping this in mind,
+I anticipate no major problems.
+
+\section{Per-module Compilation}
+The simplest approach to compiling Agda programs is to compile all Agda modules in one go
+and perform all transformations and optimizations on the complete program. Nonetheless, from
+a user perspective it would be preferrable to support per-module or per-package compilation,
+as this could shorten compile times.
+
 \section{Haskell FFI}
 \label{sec:prop:hs-ffi}
 Writing all code in plain Agda might often be possible, but it might sometimes be more
@@ -192,7 +225,6 @@ preserved when interacting with the Haskell world. Creating an unsafe Agda-Haske
 FFI, while being definitely easier, would risk introducing new bugs. Hence, an approach
 where the type-checking works across the language boundary is the main goal, wherever
 this is possible.
-
 
 
 \subsection{Names}
@@ -583,12 +615,15 @@ to encode invariants that are known to hold, eg $x + y == y + x$.
 It would be favourable to have a way to specify the post-/precondition at the language-boundary
 to avoid lifting all code into a partiality-monad such as Maybe.
 We propose to use Contracts for this purpose. (Contracts could
-theoretically also be used for pure Agda Code, but this would defeat the purpose of Agda. (TODO check?))
+theoretically also be used for pure Agda Code, but this would defeat the purpose of Agda.)
 
-The additional contract can be seen as the precondition of the Agda function or postcondition of the
-HS function. To implement such a scheme, a decision function is required. If the pre-/postcondition is not met,
+The use of such contracts is especially beneficial to annotate Agda-to-HS call with invariants
+of the Haskell function. To be more precise, this would be the postcondition of the Haskell function.
+
+To implement such a scheme, a decision function is required. If the postcondition is not met,
 the function call will fail at runtime. A short example of the desired functionality can be seen in listing \ref{lst:agda-con-ex}
 for the case of calling HS from Agda.
+
 
 \begin{figure}
 \lstinputlisting[firstline=28,lastline=85]{code/ContractsAgda.agda}
@@ -596,15 +631,18 @@ for the case of calling HS from Agda.
 \label{lst:agda-con-ex}
 \end{figure}
 
-It may be desirable to create special syntax for specifying such contracts, but it is
-not clear what such syntax would look like.
+It is less clear if Contracts should also be available/used for HS-to-Agda calls. Another open question is how
+contracts can be expressed syntactically in a concise manner, while not obscuring the dangers of using contracts.
+Furthermore, it might be not always obvious which invariants for a FFI Call are worth asserting. It could be beneficial
+to allow the contracts to be seperated from the FFI declaration itself, as to allow the addition of further invariants later on.
 
-TODO does this makes sense for the `HS calls Agda` direction? this looks like a bad idea.
-TODO what if there are many invariants for an FFI function? e.g. + has
-commutativity, associativity, etc... What about distributivity?
-\section{Cabal Integration - WIP}
-long term, it would be nice to be able to compile Agda programs using Cabal and
-mix it with plain Haskell packages.
+
+\section{Cabal Integration}
+As the proposed Agda Compiler is built upon UHC and with a HS FFI in mind, it would be desirable
+to leverage the features of Cabal for Agda programs. This would encompass being able
+to install Agda packages using Cabal as well as allowing dependencies between Agda and HS packages.
+This feature would likely need some changes in Agda, especially
+for the interactive mode.
 
 \section{UHC Changes}
 For the proposal laid out so far, certain changes in UHC itself appear
