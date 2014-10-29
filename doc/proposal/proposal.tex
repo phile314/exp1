@@ -58,19 +58,24 @@ as intermediate language to produce efficient executables. Apart from just being
 Agda code, it shall also be researched how a FFI interface between Agda and Haskell can be constructed,
 what restrictions apply to such a FFI binding and how it may interfere with optimizations.
 
-\chapter{Existing Backends - WIP}
-The current version of Agda has 3 backends. The MAlonzo backend targets Haskell as intermediate
+\chapter{Existing Backends}
+The current version of Agda has three backends. The MAlonzo backend targets Haskell as intermediate
 language, which is then compiled using GHC. The JS backend, as it's name says, targets javascript
 and is intended for compiling web applications. Lastly, the Epic backend targets the Epic language
 and uses the Epic compiler to produce an executable.
 We shall now look at these three backends a bit more in depth.
+
+
 \section{MAlonzo}
 MAlonzo is the only officially maintained backend of Agda and is able to compile the whole standard
-library. This backend contains no optimizations, apart from special handling of some Agda builtin
-datatypes like Nat. Instead, the MAlonzo compiler relies on GHC in that regard, which depending
+library. The original implementation is described in \cite{benke2007alonzo}, but has undergone
+heavy changes in the meantime.
+This backend contains no optimizations, apart from special handling of some Agda builtin
+datatypes like Nat. Instead, the MAlonzo compiler relies on GHC for optimizations, which depending
 on the Agda program works to differing degress. Especially in situations where the type information
 present in Agda would be required to perform optimizations, the limitations of the current implementation
-become apparent. (Nat example)
+become apparent.
+% Nat is an example
 
 While this problems can be overcome, it also needs to be mentioned that the target language Haskell
 is not a perfect fit for compiling Agda. As Haskell doesn't support dependent types, the produced
@@ -78,43 +83,82 @@ code contains a lot of "coerce" statements to cheat the haskell type system. Not
 bugs in the Agda backend, this should be safe but shows that there is a mismatch between the
 two languages.
 
-In regard to creating an FFI between Agda and Haskell, I expect similar problems as with the approach
-outlined in the UHC Core proposal in chapter \ref{chp:proposal}. As GHC features a more expressive type system,
-it might be possible to extend the mapping to a greater subset of Agda, but a complete mapping
+While the generated Haskell
+code can theoretically be called from normal Haskell programs, this is not intended nor supported
+by MAlonzo except via explicit FFI declarations. For the MAlonzo FFI similar problems as with
+the approach outlined in the UHC Core proposal in chapter \ref{chp:proposal} have to be expected.
+As GHC features a more expressive type system than UHC,
+it might be possible to extend the MAlonzo FFI to a greater subset of Agda, but a complete mapping
 between Agda and Haskell still seems unattainable.
+
+The implementation of MAlonzo is of reasonable coding quality, but the code is deeply entangled with the Haskell
+pretty printing. This makes it hard to reuse this backend for other target languages, altough it can
+certainly provide inspiration on how to solve certain problems.
+
 \section{Epic}
 The Epic backend \cite{fredriksson2011totaly} of Agda uses the Epic language \cite{Brady:2011:ELG:2362963.2362968} as intermediate
-language, relying on the Epic compiler to produce an executable. This backend incorporates some optimizations, but has not been
+language, relying on the Epic compiler to produce an executable. This backend incorporates some optimizations, but is no longer
 maintained. The same also applies to the Epic compiler itself, which is unmaintained too.
 
 The backend is well-structured and the code is of reasonable quality. It features an FFI to the Epic language,
-which is used to define some basic primitives. It is not possible to interact with any Haskell code easily,
+which is used to define some basic primitives. It is not possible to interact with Haskell code easily,
 as Epic is compiled to C.
 
 The backend features the most extensive optimizations out of all three backends. This backend is currently not able
-to compile the whole Agda standard library, but small standalone programs can be made work with some effort.
+to compile the whole Agda standard library, but small standalone programs can be made work with some effort. It
+uses an internal AST representation of Epic, which decouples the backend from the pretty printing of Epic.
+This enables the reuse of large parts of this backend for similar target languages, by simply adapting the pretty printing
+part.
 
 
-TODO Epic Core, UHC Core
+\section{Javascript}
+The Javascript backend \cite{Jeffrey:2013:agda-js} of Agda targets the Javascript language. This backend
+is no longer maintained and cannot compile the standard library.
 
-\section{JS}
+The translation of Agda to Javascript in itself poses no major problems, as Javascript is untyped. The
+only major missing feature is pattern matching, which is translated into the visitor pattern.
+As this backend attempts to make interoperability
+with other Javascript code straight-forward, the compiled code follows certain Javascript-Idioms.
 
-\section{Feature Comparison}
+Worth noting is that Javascript does not guarantee that tail-calls are optimized, which could impact
+the efficiency of the generated code.
+
+The backend features well organized code with a good level of source code comments. The implementation
+is clearly tailored towards the Javascript language, and would thus require major modifications to change the
+target language.
+
+
+\section{Comparison}
+A more detailed comparison of the three existing backends can be seen in table \ref{tbl:backends-comp}.
+
+From an user perspective, MAlonzo is the only viable choice right now. All other backends
+are not maintained, and documentation is scarce or outdated.
+
+The Epic backend, on the other hand, is more promising as the basis or inspiration for new backends.
+It offers a large array of optimizations and is well structured.
+
+Lastly, the Javascript backend can offer some insights into how to
+compile to Javascript or similar languages. As this quite differs from
+the goal of producing an efficient executable, this backend does not offer much
+additional inspiration when targeting Haskell, Epic or UHC Core.
+
 \begin{figure}
 \begin{tabular}{l | l | l | l}
-& MAlonzo (HS) & Epic & JS \\
+& MAlonzo (HS) & Epic & Javascript \\
 \hline
-Forcing & & Yes & \\
+Forcing & & Yes & No \\
 Erasure & No & Yes & No \\
-Injection & & Yes & \\
-Smashing & & Yes & No \\
+Injection & No & Yes & No \\
+Smashing & No & Yes & Yes \\
 Primitive Data & Builtins only (Nat) & Yes & Builtins only (Nat) \\
 Partial Evaluation & No & Manual (Pragmas) & No \\
 \hline
+Maintained & Yes & No & No \\
 User Documentation & Usable & Bad & Bad \\
-IO/FFI & Okay & Bad & Bad \\
 \hline
 \end{tabular}
+\caption{A comparison of the three Agda backends.}
+\label{tbl:backends-comp}
 \end{figure}
 
 \chapter{Prototype Compiler}
@@ -122,8 +166,8 @@ A prototype backend for Agda has been created, and it has been shown that it is 
 Agda using UHC Core. As the name suggests, this is just a prototype and not suitable for any serious use.
 
 The prototype is based on the Epic backend of Agda. Because the Epic and UHC Core Languages are
-very trimilar, this proved to be a reasonable approach. For a short overview of the two target
-languages, see REF.
+very similar, this proved to be a reasonable approach. For a short overview of the two target
+languages, see figure \ref{tbl:pro-langs}.
 
 \begin{landscape}
 \begin{figure}
@@ -147,16 +191,31 @@ Alternatives & $alt$ & ::= & Con $i$ $\vec{x}$ $\rightarrow$ $t$     & $alt$ & $
 & & \textbar & $i$ $\rightarrow$ $t$                    & & & & Integer constants \\
 & & \textbar & default $\rightarrow$ $t$                & & \textbar & default $\rightarrow$ $t$ & Default alternative
 \end{tabular}
-\caption{The abstract syntax of Epic and UHC Core. Irrelevant parts of the syntax have been omitted for clarity. We use the
-$\vec{t}$ notation to denote a list of things.}
+\caption{The abstract syntax of Epic and UHC Core. Irrelevant parts of the syntax have been omitted for brevity. The
+$\vec{t}$ notation is used to denote a list of things.}
+\label{tbl:pro-langs}
 \end{figure}
 \end{landscape}
 
-The prototype supports compiliation of one Agda module, support for multiple Agda modules is missing.
+One major difference is that Epic is strict, whereas UHC Core is lazy. As Agda does not specify
+any evaluation order, this difference can be mostly ignored. There are also some other
+minor variations, but the two languages remain very similar overall.
+
+\paragraph{Supported Features}
+The prototype supports all basic Agda constructs such as Case, Application, Dependent Types etc..
+Support for Coinduction is missing, and a lot of other more advanced features like instance arguments
+have not been tested.
+
+As only the compilation of exactly one (top-level) module is supported, the prototype could not
+be tested using existing code like the Agda Standard library. It is also likely that issues
+present in the Epic Backend carry over to the UHC Backend as well. For example, the Epic
+Backend is not able to compile the whole Agda Standard library.
 
 It is possible to link the Agda module with one or more Haskell modules. Agda postulates
 and datatypes can be mapped to Haskell datatypes, altough the mapping has to be specified
 by the user on the UHC Core level with pragmas. An example can be seen in listing \ref{lst:agda-hs-pragmas}.
+
+
 \begin{figure}
 \begin{lstlisting}
 postulate
@@ -188,18 +247,38 @@ The Agda UHC backend generates an UHC Core AST, using functions and datatypes ex
 by the UHC library EH99. The constructed AST is then serialized in textual or binary format
 to the disk. The serialized file is then compiled by calling UHC with the correct parameters.
 
-It is also worth noting that this prototype only supports a subset of Agda. Known to be
-missing is support for Coinduction.
+\paragraph{Implementation}
+The implementation can be found mostly in the folder "src/full/Agda/Compiler/UHC". The module
+names match those inside the Epic backend ("src/full/Agda/Compiler/Epic"), where possible.
 
+The module \texttt{Agda.Compiler.UHC.Compiler} is the main entry point for the UHC Backend.
+It controls the whole compilation run and calls UHC at appropriate times to compile the
+generated Core files to executables.
+
+The \texttt{Agda.Compiler.UHC.AuxAST} module contains the intermediate AST used inside the UHC Backend,
+which is translated into UHC Core in \texttt{Agda.Compiler.UHC.Core}.
+
+The module \texttt{Agda.Compiler.UHC.FromAgda} contains the translation from the internal Agda AST
+to the intermediate AST from \texttt{Agda.Compiler.UHC.AuxAST}.
+
+The module \texttt{Agda.Compiler.UHC.CoreSyntax} contains some helper functions used by
+the Agda parser and the type-check caching mechanism to parse and store Agda \texttt{COMPILED_CORE} Pragmas.
+
+The module \texttt{Agda.Compiler.UHC.Primitives} contains the builtin and primitive functions
+supported by the UHC Backend. Agda definitions marked as builtin/primitive are translated
+to the respective built in implementation when compiling.
+
+A list of the changes between the upstream Agda version and the one with the UHC backend can be found at \footnote{\url{https://github.com/phile314/agda/compare/uhc-backend}}.
+
+\paragraph{Resources}
 Links to the source code, installation and usage instructions can be found
-at \url{https://github.com/phile314/agda/wiki}.
+at \url{https://github.com/phile314/agda/wiki}. Please note that some of the
+history in github is missing due to the darcs-to-github move of Agda.
 
 \chapter{Proposal}
 \label{chp:proposal}
-\section{Agda Module support - WIP}
-\subsection{Parameterised Modules - WIP}
-Parametrized Agda modules can be mapped to normal plain modules, where every function get's the
-modules parameter as additional arguments. (see \url{http://wiki.portal.chalmers.se/agda/pmwiki.php?n=ReferenceManual.Modules#param})
+
+
 
 \section{Compiling Agda to UHC Core}
 The basic algorithm to compile Agda to UHC Core has already been explored in the prototype. More
@@ -207,11 +286,19 @@ advanced Agda features are not supported in the prototype, and I expect that com
 Agda-Core translation will definitely require a fair amount of work. Keeping this in mind,
 I anticipate no major problems.
 
-\section{Per-module Compilation}
+\section{Agda Module Support}
+\subsection{Per-module Compilation}
 The simplest approach to compiling Agda programs is to compile all Agda modules in one go
 and perform all transformations and optimizations on the complete program. Nonetheless, from
 a user perspective it would be preferrable to support per-module or per-package compilation,
 as this could shorten compile times.
+
+\subsection{Parameterised Agda Modules}
+Parametrized Agda modules can be mapped to normal plain modules, where every function get's the
+modules parameter as additional arguments.
+\footnote{See \url{http://wiki.portal.chalmers.se/agda/pmwiki.php?n=ReferenceManual.Modules}}
+
+See also \ref{sec:ffi:par-mod} for the implications this feature has on the FFI aspect.
 
 \section{Haskell FFI}
 \label{sec:prop:hs-ffi}
@@ -525,16 +612,15 @@ and it should be possible to perform this mapping for Agda Code too.
 For the more complicated cases with defaults and/or nested classes, this might pose more of a challenge.
 I also recommend leaving out Agda datatype/postulate classes for the time being.
 
-\subsection{Parameterised Modules - WIP}
+\subsection{Parameterised Modules}
+\label{sec:ffi:par-mod}
 The Haskell Module system does have no concept of parameterised modules, therefore another representation is required. In the end,
 all functions will have to get passed the module parameters explicitly. This could be done either by just prepending the module
 argument list to all function definitions, or by wrapping the module parameters in a datatype and passing that around.
 
-How should datatypes be handled?
-
 \subsection{Type-Checking interfacing}
 
-TODO rewrite with "foreign" HS approach
+%TODO rewrite with "foreign" HS approach
 
 While a lot has been said about how to translate from Agda to Haskell and vice versa,
 the question about when and by whom this translation is done has been left open. Clearly,
@@ -544,21 +630,24 @@ know the Agda representation of the used Haskell entitites.
 
 As porting both UHC and Agda to a shared representation of Agda and Haskell code
 is infeasible, the necessary information needs to be communicated in some other way.
-This basically means either creating a preprocessor which will emit the information
-necessary for the type checker, or teaching UHC the Agda language and the other way round.
 
-Implementing Agda/Haskell support in the other compiler is likely to require extensive changes
-to both code bases. Creating preprocessors or something similar is less intrusive and is expected
-to be easier to implement.
+
+Another option would be to teach UHC the Agda language or the other way round. This approach
+is highly likely to require major changes in either Agda or UHC.
+A less intrusive solution could involve creating a preprocesser, which emits the
+information necessary for Agda/UHC to compile a program without actually parsing
+the other language. 
 
 This preprocessor might even be embedded into the compiler, for example Agda might create
-a \texttt{.hi} file which UHC would use for type checking (this is just speculation...). It is worth noting
-that it is not possible to encode this information in a plain Haskell file. It might suffice for
-exporting Agda functions to generate corresponding Haskell FFI declarations. But the Haskell FFI
-by default has no way of expressing the mapping between datatypes.
+a \texttt{.hi} file which UHC would use for type checking.
 
-Passing information from Haskell to Agda appears easiest by generating an Agda file,
-which contains the correct pragmas for interfacing with the haskell code.
+The preprocessor approach should be feasible for exposing Haskell definitions to Agda
+without major problems, as the necessary support inside the Agda compiler has already
+been tested in the prototype.
+For the reverse direction, more questions remain open as UHC is currently not able
+to import Core modules. Depending on how/if a Core import mechanism is added to UHC,
+the answer to this question differs.
+
 
 \subsection{Compilation Units}
 Let a compilation unit be a set of files to be compiled together. The goal is to be able to compile a set of
@@ -584,11 +673,13 @@ datatype translation necessary at the language border.
 \paragraph{Forcing}
 Changes datatype signature, hence requires special attention for the FFI.
 A worker-wrapper approach is expected to be feasible.
-TODO what can be used from the TypeChecker forcing infrastructure?
+% TODO what can be used from the TypeChecker forcing infrastructure?
 
 \paragraph{Erasure}
 Changes function and/or datatype signatures, hence requires special attention for the FFI.
 A worker-wrapper approach is expected to be feasible.
+UHC may already implements some sort of erasure, but this has not yet been verified.
+TODO
 
 \paragraph{Injection Detection}
 Depends on tag assignment. Not clear if this can work if Agda modules can be compiled
@@ -610,14 +701,14 @@ implemented.
 The FFI interface proposed in \ref{sec:prop:hs-ffi} limits the cross-language interaction
 to "plain" datatypes. As described before, lifting such "plain" datatypes to more expressive
 Agda values might be partial. Similarly, the HS type system might not be strong enough
-to encode invariants that are known to hold, eg $x + y == y + x$.
+to encode invariants that are known to hold, eg $Even(x) \land Even(y) \Rightarrow Even(x + y)$.
 
 It would be favourable to have a way to specify the post-/precondition at the language-boundary
 to avoid lifting all code into a partiality-monad such as Maybe.
 We propose to use Contracts for this purpose. (Contracts could
 theoretically also be used for pure Agda Code, but this would defeat the purpose of Agda.)
 
-The use of such contracts is especially beneficial to annotate Agda-to-HS call with invariants
+The use of such contracts is especially beneficial to annotate Agda-to-HS calls with invariants
 of the Haskell function. To be more precise, this would be the postcondition of the Haskell function.
 
 To implement such a scheme, a decision function is required. If the postcondition is not met,
@@ -631,7 +722,9 @@ for the case of calling HS from Agda.
 \label{lst:agda-con-ex}
 \end{figure}
 
-It is less clear if Contracts should also be available/used for HS-to-Agda calls. Another open question is how
+It is less clear if Contracts should also be available/used for HS-to-Agda calls.
+
+Another open question is how
 contracts can be expressed syntactically in a concise manner, while not obscuring the dangers of using contracts.
 Furthermore, it might be not always obvious which invariants for a FFI Call are worth asserting. It could be beneficial
 to allow the contracts to be seperated from the FFI declaration itself, as to allow the addition of further invariants later on.
@@ -648,20 +741,20 @@ for the interactive mode.
 For the proposal laid out so far, certain changes in UHC itself appear
 unavoidable. A preliminary list of this changes is as follows:
 
-\subsection{Index Datatypes by Aspects - WIP}
-TODO just an idea...
-Binds inside expressions can be indexed by aspects, which does
-not apply to data types. However, there may be multiple definitions
-of the same data type caused by worker/wrapper style transformations/optimizations.
-While this definitions could be encoded using a naming convention, a more explicit
-approach may be preferrable.
+%\subsection{Index Datatypes by Aspects - WIP}
+%TODO just an idea...
+%Binds inside expressions can be indexed by aspects, which does
+%not apply to data types. However, there may be multiple definitions
+%of the same data type caused by worker/wrapper style transformations/optimizations.
+%While this definitions could be encoded using a naming convention, a more explicit
+%approach may be preferrable.
 
 \subsection{Module support for Core}
 At the moment, UHC can only compile exactly one core file to an executable.
 While this core file may import modules from other packages, it is not possible
 to import other Core files or build a package from multiple Core files.
 
-\subsection{UHC Library (EH99) on hackage}
+\subsection{UHC Library on hackage}
 UHC uses a traditional "./configure \&\& make" build process. If the parts used by the
 Agda backend could be split of into a normal cabal package residing on hackage,
 making this library a hard dependency of Agda might be possible.
