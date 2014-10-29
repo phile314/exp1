@@ -202,8 +202,8 @@ any evaluation order, this difference can be mostly ignored. There are also some
 minor variations, but the two languages remain very similar overall.
 
 \paragraph{Supported Features}
-The prototype supports all basic Agda constructs such as Case, Application, Dependent Types etc..
-Support for Coinduction is missing, and a lot of other more advanced features like instance arguments
+The prototype supports all basic Agda constructs such as dependent functions and data types.
+However, support for Coinduction is missing, and a lot of other more advanced features like instance arguments
 have not been tested.
 
 As only the compilation of exactly one (top-level) module is supported, the prototype could not
@@ -218,6 +218,11 @@ by the user on the UHC Core level with pragmas. An example can be seen in listin
 
 \begin{figure}
 \begin{lstlisting}
+data List (A : Set) : Set where
+  [] : List A
+  _::_ : (x : A) (xs : List A) -> List A
+{-# COMPILED_CORE_DATA List Data.List ([],0) (:,1) #-}
+
 postulate
     IO      : Set -> Set
     return  : {A : Set} -> A -> IO A
@@ -243,11 +248,12 @@ builtins export the Haskell IO Monad to UHC Core in a format suitable for Agda.
 The builtins can then be bound to Agda identifiers using the \texttt{COMPILED_CORE} pragmas
 already seen in listing \ref{lst:agda-hs-pragmas}.
 
+
+\paragraph{Implementation}
 The Agda UHC backend generates an UHC Core AST, using functions and datatypes exported
 by the UHC library EH99. The constructed AST is then serialized in textual or binary format
 to the disk. The serialized file is then compiled by calling UHC with the correct parameters.
 
-\paragraph{Implementation}
 The implementation can be found mostly in the folder "src/full/Agda/Compiler/UHC". The module
 names match those inside the Epic backend ("src/full/Agda/Compiler/Epic"), where possible.
 
@@ -256,13 +262,13 @@ It controls the whole compilation run and calls UHC at appropriate times to comp
 generated Core files to executables.
 
 The \texttt{Agda.Compiler.UHC.AuxAST} module contains the intermediate AST used inside the UHC Backend,
-which is translated into UHC Core in \texttt{Agda.Compiler.UHC.Core}.
+which is translated into UHC Core in the module \texttt{Agda.Compiler.UHC.Core}.
 
 The module \texttt{Agda.Compiler.UHC.FromAgda} contains the translation from the internal Agda AST
 to the intermediate AST from \texttt{Agda.Compiler.UHC.AuxAST}.
 
 The module \texttt{Agda.Compiler.UHC.CoreSyntax} contains some helper functions used by
-the Agda parser and the type-check caching mechanism to parse and store Agda \texttt{COMPILED_CORE} Pragmas.
+the Agda parser to parse Agda \texttt{COMPILED_CORE} Pragmas.
 
 The module \texttt{Agda.Compiler.UHC.Primitives} contains the builtin and primitive functions
 supported by the UHC Backend. Agda definitions marked as builtin/primitive are translated
@@ -283,7 +289,7 @@ history in github is missing due to the darcs-to-github move of Agda.
 \section{Compiling Agda to UHC Core}
 The basic algorithm to compile Agda to UHC Core has already been explored in the prototype. More
 advanced Agda features are not supported in the prototype, and I expect that completing the
-Agda-Core translation will definitely require a fair amount of work. Keeping this in mind,
+Agda-Core translation will definitely require some work. Keeping this in mind,
 I anticipate no major problems.
 
 \section{Agda Module Support}
@@ -310,7 +316,7 @@ for usable applications much easier.
 It would also be preferrable, if as much as possible type-safety gained by Agda could be
 preserved when interacting with the Haskell world. Creating an unsafe Agda-Haskell
 FFI, while being definitely easier, would risk introducing new bugs. Hence, an approach
-where the type-checking works across the language boundary is the main goal, wherever
+where the type checker ensures the correctness of FFI calls is the main goal, wherever
 this is possible.
 
 
@@ -383,39 +389,16 @@ data MultiRecord
 The prototype discussed earlier only supports a subset of this mappings. The only discovered
 issue was that in the Agda backend, types were not completely erased when translating to Core.
 Although the types were translated, they are never evaluated. The UHC HS backend on the
-other hand completely erases all type information.
+other hand completely erases all type information. This difference shouldn't cause any major problems,
+as it can easily be handled inside the FFI itself.
 
-Erasing the type parameters from Agda Code might change how expressions are evaluated,
-as an expression wrapped in a type abstraction might become a naked top level
-expression.
-\begin{figure}
-\begin{lstlisting}
--- types not erased
-f = \(x : Set) -> MyVal
-case f of
- ... 
-
--- types erased
-f' = MyVal
-case f' of
- ...
-\end{lstlisting}
-\caption{Pseudo-code illustrating the effects of type erasure.}
-\label{lst:pseu-ty-eras}
-\end{figure}
-
-Listing \ref{lst:pseu-ty-eras} shows a pseudo-code illustration of the problem.
-In the type-erased version, MyVal gets evaluated, but not in the non-erased version. As Agda doesn't specify the
-evaluation strategy, this shouldn't violate the semantics of Agda. It is also not clear if
-it is possible in the first place to write such code in Agda, as inspecting a lambda abstraction
-does not make much sense.
 
 \subsection{Depdendently typed functions and datatypes}
 As with most FFI's, there is a feature-gap between the two languages involved. While for plain datatypes a clear
 translation between the two worlds exist, this is no longer the case when dependent types are used.
 
 The usual approach to bridge this gap is to let the user define translation functions, which take
-values from one world translating it into the other. For the Haskell FFI, this corresponds to marhsalling
+values from one world translating it into the other. For the Haskell FFI, this corresponds to marshalling
 datatypes from C to HS and back. In Haskell, this translation is done on the HS side.
 
 In contrast, \cite{Osera:2012:DI:2103776.2103779} treats the conversion functions as special entities
@@ -427,8 +410,7 @@ This avoids making large changes to the Agda or Haskell language. The Agda-HS FF
 restricted to plain types, dependent types live only inside the Agda world.
 
 The translation function from the plain types to the dependent types could often be partial,
-which will require it to either live in e.g. the Maybe monad or alternatively using Contracts/runtime checks.
-TODO add reference to contract section
+which will require it to either live in e.g. the Maybe monad or alternatively using Contracts as described in section \ref{sec:contracts}.
 
 \subsection{Class System}
 Recently, Agda has gained support for a sort-of class system using so-called instance arguments. This can
@@ -440,17 +422,17 @@ be used as seen in listing \ref{lst:agda-inst-ex}.
 \end{figure}
 
 In contrast to Haskell, there are no explicit class definitions. In the example above,
-the record \texttt{Eq} doesn't differ from a normal record definition.
-The Haskell Class Constraints, on the other hand, are similiar to the instance
+the record \texttt{Eq} doesn't differ from any normal record definition.
+Haskell's Class Constraints, on the other hand, are similiar to the instance
 arguments used in the definition of \texttt{test2} above.
 
 As long as no cross-language class support is intended, the two class systems can be
-regarded as completely seperate. If the amibition is to allow interaction across
+regarded as completely seperate. If the ambition is to allow interaction across
 language borders, matters get more complicated.
 
 \paragraph{Translating Class Definitions}
 First, we will define how to map Agda class definitions to Haskell. We assume
-that class definitions are specilay marked in Agda (e.g. pragma or keyword).
+that class definitions are specially marked in Agda (e.g. pragma or keyword).
 
 For each such class definition, we translate the record fields to functions
 in the Haskell class. Fields of the record, which have a class type, are
@@ -535,7 +517,7 @@ instances available. For this, we define how the instances get translated.
 The actual implementation of the instances will call the haskell code
 behind the scenes, for example using postulates or primitives. It is worth mentioning
 that this will also influence type checking in the agda world, as it will not be
-able to reason about the instance definitions in the Agda world. This might makes some
+possible to reason about the instance definitions in the Agda world. This might makes some
 of the Haskell type classes less useful inside Agda, but this doesn't apply to all of them.
 An example of the translation can be seen in \ref{lst:inst-hs-agda}.
 \begin{figure}
@@ -610,7 +592,6 @@ possible without any major changes in UHC. UHC uses dictionary-passing in it's C
 and it should be possible to perform this mapping for Agda Code too.
 
 For the more complicated cases with defaults and/or nested classes, this might pose more of a challenge.
-I also recommend leaving out Agda datatype/postulate classes for the time being.
 
 \subsection{Parameterised Modules}
 \label{sec:ffi:par-mod}
@@ -649,23 +630,60 @@ to import Core modules. Depending on how/if a Core import mechanism is added to 
 the answer to this question differs.
 
 
-\subsection{Compilation Units}
-Let a compilation unit be a set of files to be compiled together. The goal is to be able to compile a set of
-Haskell or Agda files, which might depend on Agda or Haskell code defined in other compile units.
+\subsection{Mixed Compilation}
+Mixing Agda and Haskell files inside one package poses additional challenges. This is likely to require
+major modifications in the Agda and UHC import chasing algorithms.
 
-Support for mixing Haskell and Agda files inside the same compilation unit is not required, as this
-might would require fiddling with the import chasing algorithm of both uhc and agda. Nonetheless,
-it might be possible to implement this later.
+Restricting each package to only contain code from one language is expected to make the implementation
+significantly easier. If mixed compilation is deemed worth the effort, it could still be implemented
+at a later time.
 
 \section{UHC Core Specification}
-There is no complete specification of the UHC Core interface as of writing. The interface
-should be documented.
+There is no complete specification of the UHC Core interface as of writing, as it was not
+intended to be used as public API. The interface should be documented.
 
 \section{Optimizations}
 Due to the high-level nature of Agda, it is vital to optimize the generated
-executables to achieve a good performance. I will not explain any optimizations here,
-but will restrict myself to documenting if/how they apply to this proposal.
-For a detailed description, please see \cite{fredriksson2011totaly} and \cite{Brady-store-indices2004}.
+executables to achieve a good performance.
+
+\subsection{Type Erasure}
+Values of type \texttt{Set} cannot influence the result of any computations in Agda. They could be replaced
+by a single unit type, without changing the value of the program.
+
+Completely erasing the type parameters, in constrast, could change how expressions are evaluated.
+As an expression wrapped in a type abstraction might become a naked top level
+expression, more evaluation than necessary might take place.
+\begin{figure}
+\begin{lstlisting}
+-- types not erased
+f = \(x : Set) -> MyVal
+case f of
+ ... 
+
+-- types erased
+f' = MyVal
+case f' of
+ ...
+\end{lstlisting}
+\caption{Pseudo-code illustrating the effects of type erasure.}
+\label{lst:pseu-ty-eras}
+\end{figure}
+
+Listing \ref{lst:pseu-ty-eras} shows a pseudo-code illustration of the problem.
+In the non-type-erased version, the evaluation of \texttt{MyVal} is blocked by the lambda abstraction in \texttt{f}.
+In contrast, in the type-erased version \texttt{MyVal} is evaluated, as the lambda in \texttt{f} has been erased.
+
+As Agda doesn't specify the
+evaluation strategy, this shouldn't violate the semantics of Agda. It is also not clear if
+it is possible in the first place to write such code in Agda, as inspecting a lambda abstraction
+does not make much sense.
+
+There is no clear answer (yet?) which approach is best. %, as it is a tradeoff between performance and simpler semantics.
+
+\subsection{Other optimizations}
+There are many other applicaple optimizations. I will restrict myself to documenting if/how they apply to this proposal,
+but not provide any detailed descriptions. Please see \cite{fredriksson2011totaly} and \cite{Brady-store-indices2004}
+for further details.
 
 For most optimizations, the problems arise when traversing the HS-Agda boundary. The worker-wrapper
 approach can migitate this problems, while imposing a slight performance penalty due to the
@@ -676,13 +694,13 @@ A worker-wrapper approach is expected to be feasible.
 % TODO what can be used from the TypeChecker forcing infrastructure?
 
 \paragraph{Erasure}
+A generalized version of type erasure, removing all unused arguments and/or datatype fields.
 Changes function and/or datatype signatures, hence requires special attention for the FFI.
 A worker-wrapper approach is expected to be feasible.
-UHC may already implements some sort of erasure, but this has not yet been verified.
-TODO
+% UHC may already implements some sort of erasure, but this has not yet been researched in detail.
 
 \paragraph{Injection Detection}
-Depends on tag assignment. Not clear if this can work if Agda modules can be compiled
+Depends on constructor tag assignment order. Not clear if this can work well if Agda modules can be compiled
 seperatly. Might also interfere with the tag-invariants expected by UHC.
 For module-scoped Agda-only datatypes, this opimization should be possible without
 problems.
@@ -697,7 +715,11 @@ A worker-wrapper approach is expected to be feasible. In addition, some special
 HS or Agda function to convert a primitive datatype to the HS-integer datatype and vice-versa could be
 implemented.
 
+It might be also possible to implement a part of this optimization on the UHC Core level, which would solve all
+FFI concers.
+
 \section{Contracts (for FFI)}
+\label{sec:contracts}
 The FFI interface proposed in \ref{sec:prop:hs-ffi} limits the cross-language interaction
 to "plain" datatypes. As described before, lifting such "plain" datatypes to more expressive
 Agda values might be partial. Similarly, the HS type system might not be strong enough
@@ -706,7 +728,7 @@ to encode invariants that are known to hold, eg $Even(x) \land Even(y) \Rightarr
 It would be favourable to have a way to specify the post-/precondition at the language-boundary
 to avoid lifting all code into a partiality-monad such as Maybe.
 We propose to use Contracts for this purpose. (Contracts could
-theoretically also be used for pure Agda Code, but this would defeat the purpose of Agda.)
+theoretically also be applied to pure Agda Code, but this would defeat the purpose of Agda.)
 
 The use of such contracts is especially beneficial to annotate Agda-to-HS calls with invariants
 of the Haskell function. To be more precise, this would be the postcondition of the Haskell function.
@@ -760,12 +782,11 @@ Agda backend could be split of into a normal cabal package residing on hackage,
 making this library a hard dependency of Agda might be possible.
 It would also allow the cabal dependency solver to figure out a compatible
 set of packages for both UHC and Agda, which may goes wrong in the current setup.
-(Cabal right now needs some manual guidance to pick packages compatible with both UHC and Agda)
-It would also make it easier to use the cabal sandbox feature for development.
+It would also simplify the installation of UHC/Agda and make it easier to use the cabal sandbox feature for development.
 
 \subsection{Cabal support for UHC}
 The cabal support for installing packages into the UHC database is broken. If this would work, it
-would marginally simplfy the installation of the uhc-agda-base package.
+would marginally simplify the installation of the uhc-agda-base package.
 
 
 \bibliography{bib}{}
