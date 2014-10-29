@@ -254,7 +254,8 @@ The Agda UHC backend generates an UHC Core AST, using functions and datatypes ex
 by the UHC library EH99. The constructed AST is then serialized in textual or binary format
 to the disk. The serialized file is then compiled by calling UHC with the correct parameters.
 
-The implementation can be found mostly in the folder "src/full/Agda/Compiler/UHC". The module
+The implementation can be found mostly in the folder "src/full/Agda/Compiler/UHC" inside
+the Agda repository. The module
 names match those inside the Epic backend ("src/full/Agda/Compiler/Epic"), where possible.
 
 The module \texttt{Agda.Compiler.UHC.Compiler} is the main entry point for the UHC Backend.
@@ -273,6 +274,11 @@ the Agda parser to parse Agda \texttt{COMPILED_CORE} Pragmas.
 The module \texttt{Agda.Compiler.UHC.Primitives} contains the builtin and primitive functions
 supported by the UHC Backend. Agda definitions marked as builtin/primitive are translated
 to the respective built in implementation when compiling.
+
+
+The support library for Agda programs containing builtin definitions like \texttt{Nat} can
+be found in the directory "src/data/uhc-agda-base".
+
 
 A list of the changes between the upstream Agda version and the one with the UHC backend can be found at \footnote{\url{https://github.com/phile314/agda/compare/uhc-backend}}.
 
