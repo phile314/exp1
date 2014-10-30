@@ -37,7 +37,7 @@
 %\newcommand*{\textoverline}[1]{$\overline{\hbox{#1}}\m@th$}
 %\makeatother
 
-\title{Proposal for an Agda UHC Backend}
+\title{An UHC Backend for Agda}
 \author{Philipp Hausmann \\
     4003373 \\
     }
@@ -129,7 +129,7 @@ target language.
 
 
 \section{Comparison}
-A more detailed comparison of the three existing backends can be seen in table \ref{tbl:backends-comp}.
+A comparison of the three existing backends can be seen in table \ref{tbl:backends-comp}.
 
 From an user perspective, MAlonzo is the only viable choice right now. All other backends
 are not maintained, and documentation is scarce or outdated.
@@ -201,6 +201,7 @@ One major difference is that Epic is strict, whereas UHC Core is lazy. As Agda d
 any evaluation order, this difference can be mostly ignored. There are also some other
 minor variations, but the two languages remain very similar overall.
 
+
 \paragraph{Supported Features}
 The prototype supports all basic Agda constructs such as dependent functions and data types.
 However, support for Coinduction is missing, and a lot of other more advanced features like instance arguments
@@ -266,7 +267,8 @@ The \texttt{Agda.Compiler.UHC.AuxAST} module contains the intermediate AST used 
 which is translated into UHC Core in the module \texttt{Agda.Compiler.UHC.Core}.
 
 The module \texttt{Agda.Compiler.UHC.FromAgda} contains the translation from the internal Agda AST
-to the intermediate AST from \texttt{Agda.Compiler.UHC.AuxAST}.
+to the intermediate AST from \texttt{Agda.Compiler.UHC.AuxAST}. A short explanation
+of the \emph{case splitting trees} algorithm used can be found in \cite{fredriksson2011totaly} in chapter 3.1 .
 
 The module \texttt{Agda.Compiler.UHC.CoreSyntax} contains some helper functions used by
 the Agda parser to parse Agda \texttt{COMPILED_CORE} Pragmas.
@@ -293,7 +295,10 @@ history in github is missing due to the darcs-to-github move of Agda.
 \chapter{Proposal}
 \label{chp:proposal}
 
-
+The prototype documented in the previous chapter lays the ground work for a usable UHC backend
+for agda, but is not yet ready for compiling real-world programs. This chapter will
+describe what is missing and possible further extensions which can be built upon the results
+achieved so far.
 
 \section{Compiling Agda to UHC Core}
 The basic algorithm to compile Agda to UHC Core has already been explored in the prototype. More
@@ -704,9 +709,8 @@ A worker-wrapper approach is expected to be feasible.
 
 \paragraph{Erasure}
 A generalized version of type erasure, removing all unused arguments and/or datatype fields.
-Changes function and/or datatype signatures, hence requires special attention for the FFI.
-A worker-wrapper approach is expected to be feasible.
-% UHC may already implements some sort of erasure, but this has not yet been researched in detail.
+It would be beneficial to do this optimization on the UHC Core level (or below), as it would
+avoid interfering with the FFI and also speed up the generated Haskell code.
 
 \paragraph{Injection Detection}
 Depends on constructor tag assignment order. Not clear if this can work well if Agda modules can be compiled
@@ -724,8 +728,8 @@ A worker-wrapper approach is expected to be feasible. In addition, some special
 HS or Agda function to convert a primitive datatype to the HS-integer datatype and vice-versa could be
 implemented.
 
-It might be also possible to implement a part of this optimization on the UHC Core level, which would solve all
-FFI concers.
+It might be also possible to implement part of this optimization on the UHC Core level, which would solve all
+FFI concerns.
 
 \section{Contracts (for FFI)}
 \label{sec:contracts}
