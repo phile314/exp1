@@ -146,7 +146,7 @@ additional inspiration when targeting Haskell, Epic or UHC Core.
 \begin{tabular}{l | l | l | l}
 & MAlonzo (HS) & Epic & Javascript \\
 \hline
-Forcing & & Yes & No \\
+Forcing & No & Yes & No \\
 Erasure & No & Yes & No \\
 Injection & No & Yes & No \\
 Smashing & No & Yes & Yes \\
@@ -275,9 +275,12 @@ The module \texttt{Agda.Compiler.UHC.Primitives} contains the builtin and primit
 supported by the UHC Backend. Agda definitions marked as builtin/primitive are translated
 to the respective built in implementation when compiling.
 
+There is also one small modification which has been made to UHC. This modification
+ensures that case alternatives are always in the proper order, which the Agda UHC backend
+does not guarantee by itself. \footnote{\url{https://github.com/phile314/uhc/compare/case-order}}
 
 The support library for Agda programs containing builtin definitions like \texttt{Nat} can
-be found in the directory "src/data/uhc-agda-base".
+be found in the directory "src/data/uhc-agda-base" in the Agda repository.
 
 
 A list of the changes between the upstream Agda version and the one with the UHC backend can be found at \footnote{\url{https://github.com/phile314/agda/compare/uhc-backend}}.
@@ -692,7 +695,7 @@ but not provide any detailed descriptions. Please see \cite{fredriksson2011total
 for further details.
 
 For most optimizations, the problems arise when traversing the HS-Agda boundary. The worker-wrapper
-approach can migitate this problems, while imposing a slight performance penalty due to the
+approach can migitate this problems, while potentially imposing a slight performance penalty due to the
 datatype translation necessary at the language border.
 \paragraph{Forcing}
 Changes datatype signature, hence requires special attention for the FFI.
