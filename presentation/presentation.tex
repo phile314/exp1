@@ -1,0 +1,151 @@
+\documentclass{beamer}
+\usetheme[style=plain]{uu}
+\usefonttheme{professionalfonts}
+
+\usepackage{fontspec}
+
+%% Standard packages
+\usepackage{unicode-math}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{url}
+\usepackage{acronym}
+
+
+
+%% Code
+% \usepackage{minted}
+% \usepackage{fancyvrb}
+% \usemintedstyle{default}
+
+
+%% Haskell
+%\newmint{haskell}{mathescape,fontfamily=tt}
+%\newminted{haskell}{gobble=8,mathescape,fontfamily=tt}
+
+%% Agda
+\usepackage{catchfilebetweentags}
+\usepackage{src/agda/latex/agda}
+\newcommand{\AK}{\AgdaKeyword}
+\newcommand{\AS}{\AgdaString}
+\newcommand{\AY}{\AgdaSymbol}
+\newcommand{\AN}{\AgdaNumber}
+\newcommand{\AB}{\AgdaBound}
+\newcommand{\AO}{\AgdaOperator}
+\newcommand{\AI}{\AgdaInductiveConstructor}
+\newcommand{\AC}{\AgdaCoinductiveConstructor}
+\newcommand{\AD}{\AgdaDatatype}
+\newcommand{\AF}{\AgdaFunction}
+\newcommand{\AM}{\AgdaModule}
+\newcommand{\AL}{\AgdaField}
+\newcommand{\AR}{\AgdaArgument}
+\newcommand{\AT}{\AgdaIndent}
+\newcommand{\ARR}{\AgdaRecord}
+
+
+
+%% PDF metainformation
+\usepackage{datetime}
+\usepackage{ifpdf}
+\ifpdf
+\pdfinfo{
+    /Author (Philipp Hausmann)
+    /Title (Agda UHC Backend Prototype: On the way to a decent Agda compiler.)
+    /Keywords (Agda, Dependently-typed programming, Functional programming, Compilers, Dependent types, Coq, Lava, Coquet)
+    /CreationDate (D:\pdfdate)
+}
+\fi
+
+
+%% LaTeX meta-information
+\title[Agda UHC Backend]{Agda Backends: A survey and a UHC backend prototype}
+\date{\today}
+
+%% Author after \begin{document}
+
+\institute[Utrecht University] {
+    Department of Information and Computing Sciences \\
+    Utrecht University
+}
+
+%\subject{DSL, EDSL, Agda, Dependently-typed programming, Functional programming, Hardware Description, Dependent types, Coq, Lava, Coquet}
+
+
+
+\defbeamertemplate{section page}{mine}[1][]{%
+    \begin{centering}
+        {\usebeamerfont{section name}\usebeamercolor[fg]{section name}#1}
+        \vskip1em\par
+        \begin{beamercolorbox}[sep=12pt,center]{part title}
+            \usebeamerfont{section title}\insertsection\par
+        \end{beamercolorbox}
+    \end{centering}
+}
+
+\defbeamertemplate{subsection page}{mine}[1][]{%
+    \begin{centering}
+        {\usebeamerfont{subsection name}\usebeamercolor[fg]{subsection name}#1}
+        \vskip1em\par
+        \begin{beamercolorbox}[sep=8pt,center,#1]{part title}
+            \usebeamerfont{subsection title}\insertsubsection\par
+        \end{beamercolorbox}
+    \end{centering}
+}
+
+
+%% The document itself
+\AtBeginSubsection{\frame{\subsectionpage}}
+\begin{document}
+    \author[P. Hausmann]{
+        \begin{tabular}{r@{ }l}
+            Author:     & Philipp Hausmann \\
+                        & \small{\texttt{<p.hausmann@uu.nl>}} \\[2ex]
+            Supervisors: & Wouter Swierstra \\
+                        & \small{\texttt{<w.s.swierstra@uu.nl>}} \\
+                        & Atze Dijkstra \\
+                        & \small{\texttt{<atze@uu.nl>}}
+        \end{tabular}
+    }
+
+    \setbeamertemplate{section page}[mine][]
+    \setbeamertemplate{subsection page}[mine][]
+
+    \begin{frame}
+        \titlepage
+    \end{frame}
+
+    % \begin{frame}
+    %     \frametitle{Table of Contents}
+    %     \tableofcontents
+    % \end{frame}
+
+
+    %% Sections
+%    \input{section-intro-background.tex}
+%    \input{section-dtp-agda.tex}
+%    \input{section-piware-syntax.tex}
+%    \input{section-piware-semantics.tex}
+%    \input{section-piware-proofs.tex}
+%    \input{section-final.tex}
+
+
+    \begin{frame}[plain]
+        \begin{center}
+            \par{\Huge{Thank you!}}
+            \vspace{\baselineskip}
+            \par{\Huge{Questions?}}
+
+
+        \end{center}
+    \end{frame}
+
+    \begin{frame}[allowframebreaks]
+        \frametitle{References}
+        \bibliographystyle{apalike}
+        \bibliography{references}
+    \end{frame}
+\end{document}
+
