@@ -13,8 +13,8 @@
 \usepackage{color}
 \usepackage{url}
 \usepackage{acronym}
-
-
+\usepackage{cite}
+\usepackage{listings}
 
 %% Code
 % \usepackage{minted}
@@ -117,14 +117,30 @@
         \titlepage
     \end{frame}
 
-    % \begin{frame}
-    %     \frametitle{Table of Contents}
-    %     \tableofcontents
-    % \end{frame}
+    \begin{frame}
+        \frametitle{Table of Contents}
+        \tableofcontents
+    \end{frame}
+
+    % Agda introduction
+    % overview existing backends
+    % UHC backend
+    %   comparison uhc core / epic
+    %   challenges?
+    %   uhc changes
+    %   demonstration
+    % Future work
+    %   Master thesis / stdlib, ffi
+    %   merge with agda
+    %   
+    % Other future work
+    %   cabal support for Agda/UHC
 
 
     %% Sections
-%    \input{section-intro-background.tex}
+    \input{section-agda-intro.tex}
+    \input{section-cur-backends.tex}
+    \input{section-uhc-backend.tex}
 %    \input{section-dtp-agda.tex}
 %    \input{section-piware-syntax.tex}
 %    \input{section-piware-semantics.tex}
@@ -145,7 +161,7 @@
     \begin{frame}[allowframebreaks]
         \frametitle{References}
         \bibliographystyle{apalike}
-        \bibliography{references}
+        \bibliography{bib}{}
     \end{frame}
 \end{document}
 
