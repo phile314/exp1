@@ -1,11 +1,17 @@
 \section{UHC Backend}
 
-\begin{frame}[fragile]{UHC Backend}
-\includegraphics[width=250px]{agda-arch-with-uhc.png}
+% two steps, first without mod
+\begin{frame}[fragile]{UHC Compiler}
+\includegraphics{uhc-arch-extr.png}
 \end{frame}
 
 \begin{frame}[fragile]{UHC Compiler}
 \includegraphics{uhc-arch-extr-mod.png}
+\end{frame}
+
+
+\begin{frame}[fragile]{UHC Backend}
+\includegraphics[width=250px]{agda-arch-with-uhc.png}
 \end{frame}
 
 
@@ -23,19 +29,34 @@ $t$ & $::=$ & $x$               & $t$ & $::=$ & $x$ \\
 & \textbar & let $x$ = $t$ in $t$     & & \textbar & let $x$ = $t$ in $t$ \\
 & &                                   & & \textbar & let! $x$ = $t$ in $t$ \\
 & \textbar & lazy $t$                 & & & \\
-& \textbar & $t$ $!$ $i$              & & & \\
-& \textbar & $i$                      & & \textbar & $i$ \\
-\\
-$alt$ & ::= & Con $i$ $\vec{x}$ $\rightarrow$ $t$     & $alt$ & $::=$ & Con $i$ $\vec{x}$ $\rightarrow$ $t$ \\
-& \textbar & $i$ $\rightarrow$ $t$                    & & & \\
-& \textbar & default $\rightarrow$ $t$                & & \textbar & default $\rightarrow$ $t$
+%& \textbar & $t$ $!$ $i$              & & & \\
+& \textbar & $i$                      & & \textbar & $i$
+%\\
+%$alt$ & ::= & Con $i$ $\vec{x}$ $\rightarrow$ $t$     & $alt$ & $::=$ & Con $i$ $\vec{x}$ $\rightarrow$ $t$ \\
+%& \textbar & $i$ $\rightarrow$ $t$                    & & & \\
+%& \textbar & default $\rightarrow$ $t$                & & \textbar & default $\rightarrow$ $t$
 \end{tabular}
 \end{frame}
 
-\begin{frame}{UHC Backend}
+\begin{frame}[fragile]{UHC Backend}
 \begin{itemize}
 \item UHC Core was not intended as public API
 \item Undocumented assumptions inside UHC
+\pause
+\begin{lstlisting}[language=Haskell]
+case x of
+  []     -> a
+  (x:xs) -> b
+\end{lstlisting}
+is not the same as
+\begin{lstlisting}[language=Haskell]
+case x of
+  (x:xs) -> b
+  []     -> a
+\end{lstlisting}
+%\begin{itemize}
+%    \item E.g. alt
+%\end{itemize}
 \end{itemize}
 \end{frame}
 
@@ -45,6 +66,10 @@ $alt$ & ::= & Con $i$ $\vec{x}$ $\rightarrow$ $t$     & $alt$ & $::=$ & Con $i$ 
 \item Compiling single Agda modules
 \item Agda - Haskell FFI, but involves manual work
 \end{itemize}
+\end{frame}
+
+\begin{frame}
+Demonstration
 \end{frame}
 
 \begin{frame}{UHC Backend - Future work}

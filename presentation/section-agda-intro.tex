@@ -2,13 +2,13 @@
 \begin{frame}[fragile]{Agda Introduction}
 \begin{itemize}
 \item Why dependent types?
-\item
+\pause \item
 \begin{lstlisting}[language=Haskell]
 head :: forall a . List a -> a
 head (x:xs) = x
 head [] = error "something went wrong..."
 \end{lstlisting}
-\item Runtime crashes are possible in Haskell!
+\pause \item Runtime crashes are possible in Haskell!
 \end{itemize}
 \end{frame}
 
@@ -40,20 +40,28 @@ head [] = error "something went wrong..."
 
 \begin{frame}[fragile]{Cont.}
 \begin{itemize}
-\item We can now write a total head function
-\item \begin{code}
-\>\AgdaFunction{head} \AgdaSymbol{:} \AgdaSymbol{∀} \AgdaSymbol{\{}\AgdaBound{A} \AgdaBound{n}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaSymbol{(}\AgdaInductiveConstructor{succ} \AgdaBound{n}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaBound{A}\<%
+\item We can now write the head function in Agda
+\item \begin{code}%
+\>\AgdaFunction{head1} \AgdaSymbol{:} \AgdaSymbol{∀} \AgdaSymbol{\{}\AgdaBound{A} \AgdaBound{n}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaBound{n} \AgdaSymbol{→} \AgdaBound{A}\<%
 \\
-\>\AgdaFunction{head} \AgdaSymbol{(}\AgdaInductiveConstructor{cons} \AgdaBound{x} \AgdaBound{xs}\AgdaSymbol{)} \AgdaSymbol{=} \AgdaBound{x}\<%
+\>\AgdaFunction{head1} \AgdaSymbol{(}\AgdaInductiveConstructor{cons} \AgdaBound{x} \AgdaBound{xs}\AgdaSymbol{)} \AgdaSymbol{=} \AgdaBound{x}\<%
+\\
+\>\AgdaFunction{head1} \AgdaInductiveConstructor{nil} \AgdaSymbol{=} \AgdaBound{????}\<%
 \end{code}
-\item The typechecker knows that the nil-case cannot happen!
+\pause \item This will not type check!
+\pause \item \begin{code}%
+\>\AgdaFunction{head2} \AgdaSymbol{:} \AgdaSymbol{∀} \AgdaSymbol{\{}\AgdaBound{A} \AgdaBound{n}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaSymbol{(}\AgdaInductiveConstructor{succ} \AgdaBound{n}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaBound{A}\<%
+\\
+\>\AgdaFunction{head2} \AgdaSymbol{(}\AgdaInductiveConstructor{cons} \AgdaBound{x} \AgdaBound{xs}\AgdaSymbol{)} \AgdaSymbol{=} \AgdaBound{x}\<%
+\end{code}
+\item The typechecker now knows that the nil-case cannot happen!
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Agda Summary}
 \begin{itemize}
 \item Values can be used as types
-\item Functions need to be total
 \item Types cannot influence value of an expression
+\item Functions need to be total
 \end{itemize}
 \end{frame}
