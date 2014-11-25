@@ -1,0 +1,58 @@
+\section{Agda Introduction}
+\begin{frame}[fragile]{Agda Introduction}
+\begin{itemize}
+\item Why dependent types?
+\item
+\begin{lstlisting}[language=Haskell]
+head :: forall a . List a -> a
+head (x:xs) = x
+head [] = error "something went wrong..."
+\end{lstlisting}
+\item Runtime crashes are possible in Haskell!
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Agda Introduction}
+\begin{itemize}
+  \item How to make sure at compile time that this doesn't happen?
+  \item We need to encode the length of lists in the type
+\pause \item \begin{code}%
+\>\AgdaKeyword{data} \AgdaDatatype{Nat} \AgdaSymbol{:} \AgdaPrimitiveType{Set} \AgdaKeyword{where}\<%
+\\
+\>[0]\AgdaIndent{2}{}\<[2]%
+\>[2]\AgdaInductiveConstructor{zero} \AgdaSymbol{:} \AgdaDatatype{Nat}\<%
+\\
+\>[0]\AgdaIndent{2}{}\<[2]%
+\>[2]\AgdaInductiveConstructor{succ} \AgdaSymbol{:} \AgdaDatatype{Nat} \AgdaSymbol{→} \AgdaDatatype{Nat}\<%
+\end{code}
+\pause \item \begin{code}%
+\>\AgdaKeyword{data} \AgdaDatatype{Vec} \AgdaSymbol{:} \AgdaSymbol{(}\AgdaBound{A} \AgdaSymbol{:} \AgdaPrimitiveType{Set}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaSymbol{(}\AgdaBound{n} \AgdaSymbol{:} \AgdaDatatype{Nat}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaPrimitiveType{Set} \AgdaKeyword{where}\<%
+\\
+\>[0]\AgdaIndent{2}{}\<[2]%
+\>[2]\AgdaInductiveConstructor{nil} \<[7]%
+\>[7]\AgdaSymbol{:} \AgdaSymbol{∀} \AgdaSymbol{\{}\AgdaBound{A}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaInductiveConstructor{zero}\<%
+\\
+\>[0]\AgdaIndent{2}{}\<[2]%
+\>[2]\AgdaInductiveConstructor{cons} \AgdaSymbol{:} \AgdaSymbol{∀} \AgdaSymbol{\{}\AgdaBound{A} \AgdaBound{n}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaBound{A} \AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaBound{n} \AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaSymbol{(}\AgdaInductiveConstructor{succ} \AgdaBound{n}\AgdaSymbol{)}\<%
+\end{code}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Cont.}
+\begin{itemize}
+\item We can now write a total head function
+\item \begin{code}
+\>\AgdaFunction{head} \AgdaSymbol{:} \AgdaSymbol{∀} \AgdaSymbol{\{}\AgdaBound{A} \AgdaBound{n}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaSymbol{(}\AgdaInductiveConstructor{succ} \AgdaBound{n}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaBound{A}\<%
+\\
+\>\AgdaFunction{head} \AgdaSymbol{(}\AgdaInductiveConstructor{cons} \AgdaBound{x} \AgdaBound{xs}\AgdaSymbol{)} \AgdaSymbol{=} \AgdaBound{x}\<%
+\end{code}
+\item The typechecker knows that the nil-case cannot happen!
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Agda Summary}
+\begin{itemize}
+\item Values can be used as types
+\item Functions need to be total
+\end{itemize}
+\end{frame}
