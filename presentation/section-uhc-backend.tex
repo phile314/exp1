@@ -1,5 +1,9 @@
 \section{UHC Backend}
 
+\begin{frame}[fragile]{UHC Backend}
+\includegraphics[width=250px]{agda-arch-with-uhc.png}
+\end{frame}
+
 \begin{frame}[fragile]{UHC Compiler}
 \includegraphics{uhc-arch-extr-mod.png}
 \end{frame}
@@ -39,7 +43,7 @@ $alt$ & ::= & Con $i$ $\vec{x}$ $\rightarrow$ $t$     & $alt$ & $::=$ & Con $i$ 
 \begin{itemize}
 \item (Dependent) dataypes, functions
 \item Compiling single Agda modules
-\item Agda - Haskell FFI for simple use cases
+\item Agda - Haskell FFI, but involves manual work
 \end{itemize}
 \end{frame}
 
@@ -54,5 +58,6 @@ $alt$ & ::= & Con $i$ $\vec{x}$ $\rightarrow$ $t$     & $alt$ & $::=$ & Con $i$ 
 \item Optimizations
 \item Improve Agda - Haskell FFI
 \item Agda support for Cabal
+\item Contracts for FFI
 \end{itemize}
 \end{frame}
