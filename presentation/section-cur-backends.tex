@@ -50,6 +50,19 @@ d55 v0 v1 v2 v3
 \end{lstlisting}
 \end{frame}
 
+\begin{frame}{MAlonzo - Summary}
+\begin{itemize}
+  \item Produces 'strange' haskell code
+  \item Can lead to size blow-up
+  \begin {itemize}
+    \item 84 lines Agda - 250'000 lines Haskell - 300 Mb executable (CITE)
+  \end{itemize}
+  \item Relies on GHC for optimization
+  \item But generated code is not always suited for optimization!
+\end{itemize}
+\end{frame}
+
+
 \begin{frame}{MAlonzo - FFI}
 \begin{itemize}
 \item Provides simple FFI to haskell
@@ -92,15 +105,6 @@ d55 v0 v1 v2 v3
 \end{frame}
 
 
-\begin{frame}{MAlonzo - Summary}
-\begin{itemize}
-  \item Produces 'strange' haskell code
-  \item Can lead to size blow-up
-  \begin {itemize}
-    \item 84 lines Agda - 250'000 lines Haskell - 300 Mb executable (CITE)
-  \end{itemize}
-\end{itemize}
-\end{frame}
 
 \subsection{JS backend}
 \begin{frame}{JS backend}
@@ -128,21 +132,20 @@ d55 v0 v1 v2 v3
 \end{frame}
 
 \begin{frame}[fragile]{Epic Language}
-\begin{tabular}{c r l}
+\begin{tabular}{c r l r}
 \hline
-\multicolumn{3}{l}{Epic Language} \\
+\multicolumn{3}{l}{Epic Language} & \\
 \hline
-$t$ & $::=$ & $x$            \\
-& \textbar & $t$ $\vec{t}$            \\
-& \textbar & $\lambda x \rightarrow t$  \\
-& \textbar & Con $i$ $\vec{t}$         \\
-& \textbar & if $t$ then $t$ else $t$  \\
-& \textbar & case $t$ of $\vec{alt}$   \\
-& \textbar & let $x$ = $t$ in $t$      \\
-& &                                    \\
-& \textbar & lazy $t$                  \\
-& \textbar & $t$ $!$ $i$               \\
-& \textbar & $i$                       
+$t$ & $::=$ & $x$            & Variable \\
+& \textbar & $t$ $\vec{t}$   & Application \\
+& \textbar & $\lambda x \rightarrow t$  & Abstraction \\
+& \textbar & Con $i$ $\vec{t}$         & Constructor application\\
+& \textbar & if $t$ then $t$ else $t$  & if-then-else\\
+& \textbar & case $t$ of $\vec{alt}$   & Case expression\\
+& \textbar & let $x$ = $t$ in $t$      & Let expression \\
+%& &                                    \\
+& \textbar & lazy $t$                  & Suspended term \\
+& \textbar & $i$                & Integer constants \\
 %\\
 %$alt$ & ::= & Con $i$ $\vec{x}$ $\rightarrow$ $t$     \\
 %& \textbar & $i$ $\rightarrow$ $t$                    \\
