@@ -1,0 +1,1 @@
+~/Projects/agda_sndbox/bin/agda --uhc --uhc-ehc-bin /home/philipp/Projects/uu/uhc/uhc/EHC/install/99/bin/ehc Demo.agda
