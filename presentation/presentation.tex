@@ -1,5 +1,6 @@
-\documentclass{beamer}
-\usetheme[style=plain]{uu}
+\documentclass[english]{beamer}
+%\usetheme[style=plain]{uu}
+\usetheme{Warsaw}
 \usefonttheme{professionalfonts}
 
 \usepackage{fontspec}
@@ -13,7 +14,7 @@
 \usepackage{color}
 \usepackage{url}
 \usepackage{acronym}
-\usepackage{cite}
+%\usepackage{cite}
 \usepackage{listings}
 \usepackage{graphicx}
 \usepackage{epstopdf}
@@ -22,12 +23,9 @@
 \usepackage{colortbl}
 \usepackage{lmodern}
 %\usepackage[norndcorners,customcolors]{hf-tikz}
-
-%% Code
-% \usepackage{minted}
-% \usepackage{fancyvrb}
-% \usemintedstyle{default}
-
+\usepackage[style=apa]{biblatex}
+\usepackage[american]{babel}
+\DeclareLanguageMapping{english}{english-apa}
 
 %% Agda
 \usepackage{catchfilebetweentags}
@@ -48,6 +46,10 @@
 \newcommand{\AT}{\AgdaIndent}
 \newcommand{\ARR}{\AgdaRecord}
 
+%\bibliography{bib}{}
+\addbibresource{bib.bib}
+
+
 \lstset{escapechar=§}
 
 
@@ -58,7 +60,7 @@
 \pdfinfo{
     /Author (Philipp Hausmann)
     /Title (Agda UHC Backend Prototype: On the way to a decent Agda compiler.)
-    /Keywords (Agda, Dependently-typed programming, Functional programming, Compilers, Dependent types, Coq, Lava, Coquet)
+    /Keywords (Agda, Dependently-typed programming, Functional programming, Compilers, Dependent types)
     /CreationDate (D:\pdfdate)
 }
 \fi
@@ -74,9 +76,6 @@
     Department of Information and Computing Sciences \\
     Utrecht University
 }
-
-%\subject{DSL, EDSL, Agda, Dependently-typed programming, Functional programming, Hardware Description, Dependent types, Coq, Lava, Coquet}
-
 
 
 \defbeamertemplate{section page}{mine}[1][]{%
@@ -140,7 +139,6 @@
     % Other future work
     %   cabal support for Agda/UHC
 
-
     %% Sections
     \input{section-agda-intro.tex}
     \input{section-cur-backends.tex}
@@ -162,10 +160,11 @@
         \end{center}
     \end{frame}
 
-    \begin{frame}[allowframebreaks]
+    \nocite{*}
+    \begin{frame}[t,allowframebreaks]
         \frametitle{References}
-        \bibliographystyle{apalike}
-        \bibliography{bib}{}
+%        \bibliographystyle{apalike}
+        \printbibliography
     \end{frame}
 \end{document}
 
