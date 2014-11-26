@@ -132,7 +132,7 @@ postulate
 
 {-# COMPILED_EPIC return (u1 : Unit, a : Any) -> Any = ioreturn(a) #-}
 {-# COMPILED_EPIC _>>=_ (u1 : Unit, u2 : Unit, x : Any, f : Any) -> Any = iobind(x,f) #-}
-{-# COMPILED_EPIC putStrLn (a : String , u : Unit) -> Unit = putStrLn(a) #-}
+{-# COMPILED_EPIC putStrLn (a : String , u : Unit) -> Unit = putStr(a) #-}
 
 {- data List {a} (A : Set a) : Set a where
   []  : List A

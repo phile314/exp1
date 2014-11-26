@@ -78,20 +78,20 @@
 \begin{frame}[fragile]{MAlonzo - Code Generation}
 \begin{lstlisting}[language=Haskell,basicstyle=\scriptsize]
 d55 v0 v1 v2 v3
-  = MAlonzo.RTE.mazCoerce
-      (d_1_55 (MAlonzo.RTE.mazCoerce v0)
-         (MAlonzo.RTE.mazCoerce v1)
-         (MAlonzo.RTE.mazCoerce v2)
-         (MAlonzo.RTE.mazCoerce v3))
+  = MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
+      (d_1_55 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v0)
+         (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v1)
+         (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v2)
+         (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v3))
   where d_1_55 v0 v1 v2 (C51 v3 v4 v5)
-          = MAlonzo.RTE.mazCoerce
-              (d33 (MAlonzo.RTE.mazCoerce ", ")
-                 (MAlonzo.RTE.mazCoerce
-  (d33 (MAlonzo.RTE.mazCoerce (v2 (MAlonzo.RTE.mazCoerce v4)))
-     (MAlonzo.RTE.mazCoerce
-        (d55 (MAlonzo.RTE.mazCoerce v0) (MAlonzo.RTE.mazCoerce v3)
-           (MAlonzo.RTE.mazCoerce v2)
-           (MAlonzo.RTE.mazCoerce v5))))))
+          = MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
+              (d33 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ ", ")
+                 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
+  (d33 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ (v2 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v4)))
+     (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
+        (d55 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v0) (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v3)
+           (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v2)
+           (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v5))))))
         d_1_55 v0 v1 v2 v3 = MAlonzo.RTE.mazIncompleteMatch name55
 \end{lstlisting}
 \end{frame}
@@ -175,8 +175,26 @@ $t$ & $::=$ & $x$            \\
 \end{itemize}
 \end{frame}
 
+
+\pgfplotsset{compat=1.8}
+\pgfplotstableread{
+paradigm position time
+{MAlonzo}     1       618
+{MAlonzo with Pragma}   2   217
+{Epic}        3     269
+}\mytable
+
 \begin{frame}{Nat Performance}
-TODO add graph comparing performance for MAlonzo and Epic
+\begin{tikzpicture}[scale=.75]
+        \begin{axis}[%
+          ybar, bar width=1.5cm,%
+          xmin=0.5,xmax=3.5, xtick=data,ymin=0,%
+          xticklabels from table={\mytable}{paradigm},%
+          xticklabel style={rotate=45,anchor=north east,inner sep=0mm},%
+          ylabel={\Large Time (ms)}, ylabel near ticks]
+          \addplot table [x=position,y=time] {\mytable};
+        \end{axis}
+\end{tikzpicture}
 \end{frame}
 
 

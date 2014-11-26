@@ -89,4 +89,4 @@ false && b = false
 
 main : IO Unit
 main = putStrLn (vecToStr natToStr k)
-  where k = if (true && true) then 23 :: (54 :: (234 :: (0 :: []))) else buildVec
+  where k = if (false && true) then 23 :: (54 :: (234 :: (0 :: []))) else buildVec
