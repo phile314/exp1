@@ -185,7 +185,7 @@ paradigm position time
 {Epic}        3     269
 }\mytable
 
-\begin{frame}{Nat Performance}
+\begin{frame}{Primitive Data - Performance}
 \begin{tikzpicture}[scale=.75]
         \begin{axis}[%
           ybar, bar width=1.5cm,%
@@ -198,8 +198,33 @@ paradigm position time
 \end{tikzpicture}
 \end{frame}
 
-\begin{frame}{TODO}
-other optimization, either forcing or smashing
+\begin{frame}[fragile]{Smashing}
+\begin{itemize}
+\item Consider the following Agda Code:
+\end{itemize}
+\begin{code}%
+\>\AgdaKeyword{data} \AgdaDatatype{Equality} \AgdaSymbol{\{}\AgdaBound{A} \AgdaSymbol{:} \AgdaPrimitiveType{Set}\AgdaSymbol{\}} \AgdaSymbol{(}\AgdaBound{x} \AgdaSymbol{:} \AgdaBound{A}\AgdaSymbol{)} \AgdaSymbol{:} \AgdaBound{A} \AgdaSymbol{->} \AgdaPrimitiveType{Set} \AgdaKeyword{where}\<%
+\\
+\>[0]\AgdaIndent{2}{}\<[2]%
+\>[2]\AgdaInductiveConstructor{refl} \AgdaSymbol{:} \AgdaDatatype{Equality} \AgdaBound{x} \AgdaBound{x}\<%
+\end{code}
+\vspace{0.2cm}
+\begin{code}%
+\>\AgdaFunction{plusAssoc} \AgdaSymbol{:} \AgdaSymbol{(}\AgdaBound{n} \AgdaBound{m} \AgdaBound{k} \AgdaSymbol{:} \AgdaDatatype{Nat}\AgdaSymbol{)}\<%
+\\
+\>[2]\AgdaIndent{4}{}\<[4]%
+\>[4]\AgdaSymbol{→} \AgdaDatatype{Equality} \AgdaSymbol{(}\AgdaBound{n} \AgdaFunction{+} \AgdaSymbol{(}\AgdaBound{m} \AgdaFunction{+} \AgdaBound{k}\AgdaSymbol{))} \AgdaSymbol{((}\AgdaBound{n} \AgdaFunction{+} \AgdaBound{m}\AgdaSymbol{)} \AgdaFunction{+} \AgdaBound{k}\AgdaSymbol{)}\<%
+\\
+\>\AgdaFunction{plusAssoc} \AgdaInductiveConstructor{zero} \AgdaBound{m} \AgdaBound{k} \AgdaSymbol{=} \AgdaInductiveConstructor{refl}\<%
+\\
+\>\AgdaFunction{plusAssoc} \AgdaSymbol{(}\AgdaInductiveConstructor{suc} \AgdaBound{n}\AgdaSymbol{)} \AgdaBound{m} \AgdaBound{k} \AgdaSymbol{=} \AgdaFunction{cong} \AgdaInductiveConstructor{suc} \AgdaSymbol{(}\AgdaFunction{plusAssoc} \AgdaBound{n} \AgdaBound{m} \AgdaBound{k}\AgdaSymbol{)}\<%
+\end{code}
+\pause
+\begin{itemize}
+  \item The above definition of \AgdaFunction{plusAssoc} is linear in it's input.
+  \pause \item But it will always return the same value.
+  \pause \item We can just replace the body by the \AgdaInductiveConstructor{refl} constructor at runtime.
+\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Comparison}
@@ -209,7 +234,7 @@ other optimization, either forcing or smashing
 Forcing & No & Yes & No \\
 Erasure & No & Yes & No \\
 Smashing & No & Yes & Yes \\
-Primitive Data & Builtins only (Nat) & Yes & Builtins only (Nat) \\
+Primitive Data & Nat only & Yes & Nat only \\
 \hline
 Maintained & Yes & No & No \\
 User Documentation & Usable & Bad & Bad \\
