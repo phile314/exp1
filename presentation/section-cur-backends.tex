@@ -13,6 +13,42 @@
 \end{itemize}
 \end{frame}
 
+\begin{frame}[fragile]{MAlonzo - Code Generation}
+\begin{code}%
+\>\AgdaFunction{vecToStr} \AgdaSymbol{:} \AgdaSymbol{∀} \AgdaSymbol{\{}\AgdaBound{A} \AgdaBound{m}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaSymbol{(}\AgdaBound{A} \AgdaSymbol{→} \AgdaPostulate{String}\AgdaSymbol{)}\<%
+\\
+\>[2]\AgdaIndent{4}{}\<[4]%
+\>[4]\AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaBound{m} \AgdaSymbol{→} \AgdaPostulate{String}\<%
+\\
+\>\AgdaFunction{vecToStr} \AgdaBound{f} \AgdaInductiveConstructor{[]} \AgdaSymbol{=} \AgdaString{""}\<%
+\\
+\>\AgdaFunction{vecToStr} \AgdaBound{f} \AgdaSymbol{(}\AgdaBound{x} \AgdaInductiveConstructor{::} \AgdaBound{xs}\AgdaSymbol{)} \AgdaSymbol{=} \AgdaString{", "} \AgdaFunction{++} \AgdaSymbol{((}\AgdaBound{f} \AgdaBound{x}\AgdaSymbol{)}\<%
+\\
+\>[2]\AgdaIndent{4}{}\<[4]%
+\>[4]\AgdaFunction{++} \AgdaSymbol{(}\AgdaFunction{vecToStr} \AgdaBound{f} \AgdaBound{xs}\AgdaSymbol{))}\<%
+\end{code}
+\end{frame}
+
+\begin{frame}[fragile]{MAlonzo - Code Generation}
+\begin{lstlisting}[language=Haskell,basicstyle=\scriptsize]
+d55 v0 v1 v2 v3
+  = MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
+      (d_1_55 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v0)
+         (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v1)
+         (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v2)
+         (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v3))
+  where d_1_55 v0 v1 v2 (C51 v3 v4 v5)
+          = MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
+              (d33 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ ", ")
+                 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
+  (d33 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ (v2 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v4)))
+     (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
+        (d55 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v0) (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v3)
+           (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v2)
+           (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v5))))))
+        d_1_55 v0 v1 v2 v3 = MAlonzo.RTE.mazIncompleteMatch name55
+\end{lstlisting}
+\end{frame}
 
 \begin{frame}{MAlonzo - FFI}
 \begin{itemize}
@@ -55,46 +91,6 @@
 \end{code}
 \end{frame}
 
-\begin{frame}[fragile]{MAlonzo - Code Generation}
-\begin{code}%
-\>\AgdaFunction{vecToStr} \AgdaSymbol{:} \AgdaSymbol{∀} \AgdaSymbol{\{}\AgdaBound{A} \AgdaBound{m}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaSymbol{(}\AgdaBound{A} \AgdaSymbol{→} \AgdaPostulate{String}\AgdaSymbol{)}\<%
-\\
-\>[2]\AgdaIndent{4}{}\<[4]%
-\>[4]\AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaBound{m} \AgdaSymbol{→} \AgdaPostulate{String}\<%
-\\
-\>\AgdaFunction{vecToStr} \AgdaBound{f} \AgdaInductiveConstructor{[]} \AgdaSymbol{=} \AgdaString{""}\<%
-\\
-\>\AgdaFunction{vecToStr} \AgdaBound{f} \AgdaSymbol{(}\AgdaBound{x} \AgdaInductiveConstructor{::} \AgdaBound{xs}\AgdaSymbol{)} \AgdaSymbol{=} \AgdaString{", "} \AgdaFunction{++} \AgdaSymbol{((}\AgdaBound{f} \AgdaBound{x}\AgdaSymbol{)}\<%
-\\
-\>[2]\AgdaIndent{4}{}\<[4]%
-\>[4]\AgdaFunction{++} \AgdaSymbol{(}\AgdaFunction{vecToStr} \AgdaBound{f} \AgdaBound{xs}\AgdaSymbol{))}\<%
-\end{code}
-
-%\ExecuteMetaData[src/agda/latex/HelloDatHS.tex]{vecToStr}
-
-%\input{src/agda/latex/HelloDat_HS.tex}
-\end{frame}
-
-\begin{frame}[fragile]{MAlonzo - Code Generation}
-\begin{lstlisting}[language=Haskell,basicstyle=\scriptsize]
-d55 v0 v1 v2 v3
-  = MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
-      (d_1_55 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v0)
-         (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v1)
-         (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v2)
-         (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v3))
-  where d_1_55 v0 v1 v2 (C51 v3 v4 v5)
-          = MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
-              (d33 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ ", ")
-                 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
-  (d33 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ (v2 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v4)))
-     (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§
-        (d55 (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v0) (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v3)
-           (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v2)
-           (MAlonzo.RTE.§\colorbox{yellow}{mazCoerce}§ v5))))))
-        d_1_55 v0 v1 v2 v3 = MAlonzo.RTE.mazIncompleteMatch name55
-\end{lstlisting}
-\end{frame}
 
 \begin{frame}{MAlonzo - Summary}
 \begin{itemize}
@@ -154,7 +150,9 @@ $t$ & $::=$ & $x$            \\
 \end{tabular}
 \end{frame}
 
-\begin{frame}[fragile]{Epic - Nat Optimizations}
+\subsection{Optimizations}
+
+\begin{frame}[fragile]{Nat - Primitive Data}
 \begin{itemize}
 \item \begin{code}%
 \>\AgdaKeyword{data} \AgdaDatatype{Nat} \AgdaSymbol{:} \AgdaPrimitiveType{Set} \AgdaKeyword{where}\<%
@@ -171,7 +169,7 @@ $t$ & $::=$ & $x$            \\
 \end{code}
 \item Naive translation is horribly slow
 \item Can be transformed into arbitrary precision Integers
-\item Automatic detection of Nat-like datatypes
+\item Automatic detection of Nat-like datatypes in Epic backend
 \end{itemize}
 \end{frame}
 
@@ -197,6 +195,21 @@ paradigm position time
 \end{tikzpicture}
 \end{frame}
 
+\begin{frame}{TODO}
+other optimization, either forcing or smashing
+\end{frame}
 
-\begin{frame}{Comparison}
+\begin{frame}[fragile]{Comparison}
+\begin{tabular}{l | l | l | l}
+& MAlonzo (HS) & Epic & Javascript \\
+\hline
+Forcing & No & Yes & No \\
+Erasure & No & Yes & No \\
+Smashing & No & Yes & Yes \\
+Primitive Data & Builtins only (Nat) & Yes & Builtins only (Nat) \\
+\hline
+Maintained & Yes & No & No \\
+User Documentation & Usable & Bad & Bad \\
+\hline
+\end{tabular}
 \end{frame}
