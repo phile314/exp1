@@ -14,9 +14,11 @@ head [] = error "something went wrong..."
 
 \begin{frame}[fragile]{Agda Introduction}
 \begin{itemize}
-  \item How to make sure at compile time that this doesn't happen?
-  \item We need to encode the length of lists in the type
-\pause \item \begin{code}%
+\item How to make sure at compile time that this doesn't happen?
+\item We need to encode the length of lists in the type
+\end{itemize}
+\pause
+\begin{code}%
 \>\AgdaKeyword{data} \AgdaDatatype{Nat} \AgdaSymbol{:} \AgdaPrimitiveType{Set} \AgdaKeyword{where}\<%
 \\
 \>[0]\AgdaIndent{2}{}\<[2]%
@@ -25,7 +27,9 @@ head [] = error "something went wrong..."
 \>[0]\AgdaIndent{2}{}\<[2]%
 \>[2]\AgdaInductiveConstructor{succ} \AgdaSymbol{:} \AgdaDatatype{Nat} \AgdaSymbol{→} \AgdaDatatype{Nat}\<%
 \end{code}
-\pause \item \begin{code}%
+\pause
+\vspace{0.5cm}
+\begin{code}%
 \>\AgdaKeyword{data} \AgdaDatatype{Vec} \AgdaSymbol{:} \AgdaSymbol{(}\AgdaBound{A} \AgdaSymbol{:} \AgdaPrimitiveType{Set}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaSymbol{(}\AgdaBound{n} \AgdaSymbol{:} \AgdaDatatype{Nat}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaPrimitiveType{Set} \AgdaKeyword{where}\<%
 \\
 \>[0]\AgdaIndent{2}{}\<[2]%
@@ -35,27 +39,28 @@ head [] = error "something went wrong..."
 \>[0]\AgdaIndent{2}{}\<[2]%
 \>[2]\AgdaInductiveConstructor{cons} \AgdaSymbol{:} \AgdaSymbol{∀} \AgdaSymbol{\{}\AgdaBound{A} \AgdaBound{n}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaBound{A} \AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaBound{n} \AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaSymbol{(}\AgdaInductiveConstructor{succ} \AgdaBound{n}\AgdaSymbol{)}\<%
 \end{code}
-\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Cont.}
-\begin{itemize}
-\item We can now write the head function in Agda
-\item \begin{code}%
+We can now write the head function in Agda
+\begin{code}%
 \>\AgdaFunction{head1} \AgdaSymbol{:} \AgdaSymbol{∀} \AgdaSymbol{\{}\AgdaBound{A} \AgdaBound{n}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaBound{n} \AgdaSymbol{→} \AgdaBound{A}\<%
 \\
 \>\AgdaFunction{head1} \AgdaSymbol{(}\AgdaInductiveConstructor{cons} \AgdaBound{x} \AgdaBound{xs}\AgdaSymbol{)} \AgdaSymbol{=} \AgdaBound{x}\<%
 \\
 \>\AgdaFunction{head1} \AgdaInductiveConstructor{nil} \AgdaSymbol{=} \AgdaBound{????}\<%
 \end{code}
-\pause \item This will not type check!
-\pause \item \begin{code}%
+\pause
+This will not type check!
+\par
+\pause
+\vspace{0.5cm}
+\begin{code}%
 \>\AgdaFunction{head2} \AgdaSymbol{:} \AgdaSymbol{∀} \AgdaSymbol{\{}\AgdaBound{A} \AgdaBound{n}\AgdaSymbol{\}} \AgdaSymbol{→} \AgdaDatatype{Vec} \AgdaBound{A} \AgdaSymbol{(}\AgdaInductiveConstructor{succ} \AgdaBound{n}\AgdaSymbol{)} \AgdaSymbol{→} \AgdaBound{A}\<%
 \\
 \>\AgdaFunction{head2} \AgdaSymbol{(}\AgdaInductiveConstructor{cons} \AgdaBound{x} \AgdaBound{xs}\AgdaSymbol{)} \AgdaSymbol{=} \AgdaBound{x}\<%
 \end{code}
-\item The typechecker now knows that the nil-case cannot happen!
-\end{itemize}
+The typechecker now knows that the nil-case cannot happen!
 \end{frame}
 
 \begin{frame}{Agda Summary}
