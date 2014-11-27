@@ -9,7 +9,6 @@
 \begin{itemize}
 \item Targets Haskell
 \item Maintained
-\item Relies on GHC for optimizations
 \end{itemize}
 \end{frame}
 
@@ -53,12 +52,12 @@ d55 v0 v1 v2 v3
 \begin{frame}{MAlonzo - Summary}
 \begin{itemize}
   \item Produces 'strange' haskell code
+  \item Relies on GHC for optimization
+  \item But generated code is not always suited for optimization!
   \item Can lead to size blow-up
   \begin {itemize}
     \item 84 lines Agda - 250'000 lines Haskell - 300 Mb executable (CITE)
   \end{itemize}
-  \item Relies on GHC for optimization
-  \item But generated code is not always suited for optimization!
 \end{itemize}
 \end{frame}
 
